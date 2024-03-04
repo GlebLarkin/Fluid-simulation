@@ -16,7 +16,7 @@ using namespace sf;
 
 //возможно надо заменить double на float, чтобы было быстрее
 const double PI = 3.14; //число пи 
-const double g = 1; //ускорение свободного падения
+const double g = 0.10; //ускорение свободного падения
 const int coef = 1; //коэф пропорциональности между силой отталкивания и массами частиц деленными на расстояние между ними
 const int boundX = 1200; //размеры открываемого окна в sfml
 const int boundY = 800; //размеры открываемого окна в sfml
@@ -30,7 +30,7 @@ long double Find_Distance(double x1, double y1, double x2, double y2) { //ищет р
 
 void sleep(int ms) {
 	//задержка на ms миллисекунд
-	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+	std::this_thread::sleep_for(std::chrono::microseconds(ms));
 }
 
 
@@ -54,14 +54,14 @@ private:
 
 public:
 	Particle() { //создает голубую частицу с коорд 0::0
-		sf::Color circleColor(100, 128, 255);
+		sf::Color circleColor(100, 255, 127);
 		circle.setFillColor(circleColor);
 		circle.setPosition(0, 0);
 		circle.setRadius(r);
 		std::cout << "голубая частица с координатами" << 0 << "::" << 0 << "создалась" << std::endl;
 	}
 	Particle(float x_, float y_) { //создает частицу с коорд х::у
-		sf::Color circleColor(100, 128, 255);
+		sf::Color circleColor(100, 255, 127);
 		circle.setFillColor(circleColor);
 		circle.setPosition(x_, y_);
 		circle.setRadius(r);
@@ -108,7 +108,7 @@ public:
 		// Проверка выхода за границы окна
 		if (this->GetY() - boundY * 0.9 > -5) { //сила трения о пол
 			this->SetVx(this->GetVx() * 0.95);
-			if (abs(this->GetVx()) <= 0.5) this->SetVx(0); //если скорость слишком мала, то остановка
+			if (abs(this->GetVx()) <= 0.25) this->SetVx(0); //если скорость слишком мала, то остановка
 		}
 		if (this->GetX() > boundX * 0.9) {
 			this->SetX(boundX * 0.9);
@@ -121,7 +121,7 @@ public:
 		if (this->GetY() > boundY * 0.9) {
 			this->SetY(boundY * 0.9);
 			this->SetVy(-this->GetVy() * 0.7);
-			if (abs(this->GetVy()) <= 0.5) this->SetVy(0); //если скорость слишком мала, то остановка
+			if (abs(this->GetVy()) <= 0.25) this->SetVy(0); //если скорость слишком мала, то остановка
 		}
 	}
 
@@ -130,15 +130,15 @@ public:
 		int red;
 		int green;
 		int blue;
-		if ((int)this->Find_speed() * 3 > 127) { //если скорость слишком большая, то цвет больше не меняем
+		if ((int)this->Find_speed() * 8 > 127) { //если скорость слишком большая, то цвет больше не меняем
 			red = 100;
 			green = 255;
-			blue = 0;
+			blue = 127;
 			return;
 		}
 		red = 100;
-		green = 128 + (int)this->Find_speed() * 3;
-		blue = 240 - (int)this->Find_speed() * 3;
+		green = 128 + (int)(this->Find_speed() * 8);
+		blue = 240 - (int)(this->Find_speed() * 8);
 		sf::Color circleColor(red, green, blue);
 		this->circle.setFillColor(circleColor);
 	}
@@ -177,8 +177,8 @@ int main()
 
 
 	Particle particle_1(600, 400); //создаем одну частицу с кооординатами и скоростями
-	particle_1.SetVx(30);
-	particle_1.SetVy(-20);
+	particle_1.SetVx(15);
+	particle_1.SetVy(-18);
 
 
 	/*int x_number_of_particels; //определяет размер массива (прямоугольника), заполненного частицами
@@ -201,10 +201,11 @@ int main()
 		}
 
 		particle_1.rebound(); //частица отталкивается
+		particle_1.Earth_Gravity(); //притягивается к земле 1 раз
 		particle_1.recolour(); //меняет цвет
 		particle_1.move(); //движется
-		particle_1.Earth_Gravity(); //притягивается к земле
-		sleep(25);
+		particle_1.Earth_Gravity(); //притягивается к земле 2 раз
+		sleep(50);
 
 		window.clear(backgroundColor);
 		window.draw(particle_1.GetCircle());
