@@ -48,6 +48,11 @@ private:
 	//===================================================================================//
 
 public:
+	Particle() { //создает частицу с коорд 0::0
+		this->x = 0;
+		this->y = 0;
+		std::cout << "частица с координатами" << 0 << "::" << 0 << "создалась" << std::endl;
+	}
 	Particle(float x, float y) { //создает частицу с коорд х::у
 		this->x = x;
 		this->y = y;
@@ -76,6 +81,8 @@ public:
 		return (alpha / ((ro + a) * (ro + a)) - a);
 	}
 
+	long double Find_speed() { return sqrt((this->vx) * (this->vx) + (this->vy) * (this->vy)); } //вычмсляет полную скорость частицы
+
 
 };
 
@@ -95,11 +102,13 @@ void sleep(int ms)
 
 
 
+
 int main()
 {
+	setlocale(LC_ALL, "Russian");
 	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
 
-	int x_number_of_particels; //определяет длину прямоугольника, заполненного частицами
+	/*int x_number_of_particels; //определяет размер массива (прямоугольника), заполненного частицами
 	int y_number_of_particels;
 	std::cout << "Введите размеры прямоугольника частиц: " << std::endl;
 	std::cin >> x_number_of_particels >> y_number_of_particels;
@@ -107,14 +116,15 @@ int main()
 	Particle** ptr_for_particles_arrays = new Particle*[x_number_of_particels]; //создаем двумерный массив для частиц
 	for (int i = 0; i < x_number_of_particels; i++) {
 		ptr_for_particles_arrays[i] = new Particle[y_number_of_particels];
-	}
+	}*/
+	
 
-	sf::CircleShape circle(5); // радиус круга
+	sf::CircleShape circle(15); // радиус круга
 	circle.setFillColor(sf::Color::Red); // цвет круга
-	circle.setPosition(400, 300); // начальная позиция круга
+	circle.setPosition(600, 400); // начальная позиция круга
 
-	float speedX = 0; // скорость движения по оси X
-	float speedY = 5; // скорость движения по оси Y
+	float speedX = 20; // скорость движения по оси X
+	float speedY = -20; // скорость движения по оси Y
 
 	while (window.isOpen())
 	{
@@ -128,15 +138,29 @@ int main()
 		// Обновление позиции круга
 		sf::Vector2f circlePos = circle.getPosition();
 		circle.setPosition(circlePos.x + speedX, circlePos.y + speedY);
-		speedY += 1;
-		// Проверка выхода за границы окна
-		if (circlePos.x < 0 || circlePos.x > 800)
-			speedX = -1;
-		if (circlePos.y < 0 || circlePos.y > 500) {
-			circle.setPosition(circlePos.x, 500);
-			speedY = -speedY * 0.6;
-			if (abs(speedY) <= 3) speedY -= 1;
+
+		speedY += 1; //реализация g
+
+		if (circlePos.y - boundY * 0.9 > -5) { //сила трения о пол
+			speedX *= 0.95;
+			if (abs(speedX) <= 0.6) speedX = 0;
 		}
+
+		// Проверка выхода за границы окна
+		if (circlePos.x > boundX * 0.9) {
+			circle.setPosition(boundX * 0.9, circlePos.y);
+			speedX = -speedX * 0.6;
+		}
+		else if (circlePos.x < boundX * 0.1) {
+			circle.setPosition(boundX * 0.1, circlePos.y);
+			speedX = -speedX * 0.6;
+		}
+		if (circlePos.y > boundY * 0.9) {
+			circle.setPosition(circlePos.x, boundY * 0.9);
+			speedY = -speedY * 0.6;
+			if (abs(speedY) <= 3) speedY = 0;
+		}
+
 		else sleep(25);
 
 
