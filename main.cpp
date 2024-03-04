@@ -15,9 +15,9 @@ using namespace sf;
 
 
 //возможно надо заменить double на float, чтобы было быстрее
-const double PI = 3.14159; //число пи 
-const double g = 9.80665; //ускорение свободного падения
-//const int coef = 1; //коэф пропорциональности между силой отталкивания и массами частиц деленными на расстояние между ними
+const double PI = 3.14; //число пи 
+const double g = 1; //ускорение свободного падения
+const int coef = 1; //коэф пропорциональности между силой отталкивания и массами частиц деленными на расстояние между ними
 const int boundX = 1200; //размеры открываемого окна в sfml
 const int boundY = 800; //размеры открываемого окна в sfml
 const float Radius_of_Interaction = 1; //радиус области взаимодействия данной частицы с остальными
@@ -28,6 +28,12 @@ long double Find_Distance(double x1, double y1, double x2, double y2) { //ищет р
 	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
+void sleep(int ms) {
+	//задержка на ms миллисекунд
+	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+}
+
+
 class Particle
 	//класс самого градиента "молекулы" и ее отображения в виде частицы
 	//умеет притягиваться к земле, отталкиваться от других частиц и обладает вязкостью
@@ -35,12 +41,11 @@ class Particle
 {
 
 private:
-	double x; //координаты
-	double y;
+	sf::CircleShape circle; //каждая частица отображается кругом 
+	const double r = 10; //радиус отображаемой частицы
 	double vx = 0; //скорости
 	double vy = 0;
 	const int mass = 1; //масса, сосредоточенная в центре
-	const double r = 0.01; //радиус отображаемой частицы
 
 	//===================================================================================//
 	const float a = 1; //смещение 1/x^2 по осям x и у в методе Gradient_of_Interaction
@@ -48,27 +53,32 @@ private:
 	//===================================================================================//
 
 public:
-	Particle() { //создает частицу с коорд 0::0
-		this->x = 0;
-		this->y = 0;
-		std::cout << "частица с координатами" << 0 << "::" << 0 << "создалась" << std::endl;
+	Particle() { //создает голубую частицу с коорд 0::0
+		sf::Color circleColor(0, 128, 255);
+		circle.setFillColor(circleColor);
+		circle.setPosition(0, 0);
+		circle.setRadius(r);
+		std::cout << "голубая частица с координатами" << 0 << "::" << 0 << "создалась" << std::endl;
 	}
-	Particle(float x, float y) { //создает частицу с коорд х::у
-		this->x = x;
-		this->y = y;
-		std::cout << "частица с координатами" << x << "::" << y << "создалась" << std::endl;
+	Particle(float x_, float y_) { //создает частицу с коорд х::у
+		sf::Color circleColor(0, 128, 255);
+		circle.setFillColor(circleColor);
+		circle.setPosition(x_, y_);
+		circle.setRadius(r);
+		std::cout << "голубая частица с координатами" << x_ << "::" << y_ << "создалась" << std::endl;
 	}
-	~Particle() { std::cout << "частица с координатами" << x << "::" << y << "низведена до атомов" << std::endl; } //уничтожает частицу с коорд х::у
 
+	double GetX() { return this->circle.getPosition().x; } //геттеры и сеттеры для коорд
+	double GetY() { return this->circle.getPosition().y; } //по сути они уже встроены в sfml, но так код получается слишком длинный(
+	void SetX(double x_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x_, y); }
+	void SetY(double y_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x, y_); }
 
-	double GetX() { return this->x; } //геттеры для коорд
-	double GetY() { return this->y; }
-	void SetCoord(double x, double y) { this->x = x; this->y = y; } //сеттер для коорд (хз зачем)
+	double GetVx() { return this->vx; } //геттеры и сеттеры для скоростей
+	double GetVy() { return this->vy; }
+	void SetVx(double vx_) { this->vx = vx_; }
+	void SetVy(double vy_) { this->vy = vy_; }
 
-	void Earth_Gravity() {
-		//гравитация, притягивает частицу вниз
-		this->vy -= g;
-	}
+	void Earth_Gravity() { this->vy += g; } //гравитация, притягивает частицу вниз
 
 	double Gradient_of_Interaction(Particle A) {
 		//рассчитывает величину "поля" данной частицы в точке другой частицы A с коорд x::y
@@ -76,15 +86,30 @@ public:
 		//величина "градиента" зависит от координаты как 1/x^2, причем гипербола смещена вправо на константу a по оси х, вниз на а по оси у и растянута в альфа раз
 		//!АЛЬФУ В ФОРМУЛЕ НУЖНО ПОМЕНЯТЬ НА НЕОБХОДИМОЕ ЗНАЧЕНИЕ(СЕЙЧАС ОНА ЕДИНИЦА), ОТ НЕЕ ЗАВИСЯТ СВОЙСТВА ЖИДКОСТИ
 		//ro - расстояние от данной частицы до частицы А
-		double ro = Find_Distance(A.x, A.y, this->x, this->y);
+		double ro = Find_Distance(A.GetX(), A.GetY(), this->GetX(), this->GetY());
 		if (ro >= Radius_of_Interaction) return 0;
 		return (alpha / ((ro + a) * (ro + a)) - a);
 	}
 
+	void move() {  //движение частицы
+		double x = GetX();
+		double y = GetY();
+		this->circle.setPosition(x += vx, y += vy); 
+	}
+
+
 	long double Find_speed() { return sqrt((this->vx) * (this->vx) + (this->vy) * (this->vy)); } //вычмсляет полную скорость частицы
+
+	void set_color(int r, int g, int b) { //меняет цвет круга
+		sf::Color circleColor(r, g, b);
+		this->circle.setFillColor(circleColor);
+	}
+
+	sf::CircleShape GetCircle() { return this->circle; } //нужна только для отрисовки круга
 
 
 };
+
 
 
 void Molecular_Interaction(Particle A, Particle B) { //взаимодействие между частицами
@@ -93,11 +118,35 @@ void Molecular_Interaction(Particle A, Particle B) { //взаимодействие между част
 	std::cout << "Взаимодействие между частицами работает!" << std::endl;
 }
 
+void rebound(Particle &A) {
+	//когда частица врезается в стену/потолок, она отскакивает, теряя часть энергии
+	// Проверка выхода за границы окна
+	if (A.GetY() - boundY * 0.9 > -5) { //сила трения о пол
+		A.SetVx(A.GetVx() * 0.95);
+		if (abs(A.GetVx()) <= 0.5) A.SetVx(0); //если скорость слишком мала, то остановка
+	}
+	if (A.GetX() > boundX * 0.9) {
+		A.SetX(boundX * 0.9);
+		A.SetVx(- A.GetVx() * 0.7);
+	}
+	else if (A.GetX() < boundX * 0.1) {
+		A.SetX(boundX * 0.1);
+		A.SetVx(-A.GetVx() * 0.7);
+	}
+	if (A.GetY() > boundY * 0.9) {
+		A.SetY(boundY * 0.9);
+		A.SetVy(-A.GetVy() * 0.7);
+		if (abs(A.GetVy()) <= 0.5) A.SetVy(0); //если скорость слишком мала, то остановка
+	}
+}
 
-void sleep(int ms)
-//задержка на ms миллисекунд
-{
-	std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+void recolor(Particle &A) {
+	//цвет частицы зависит от ее скорости
+	if ((int)A.Find_speed() * 3 > 127) { //если скорость слишком большая, то цвет больше не меняем
+		A.set_color(0, 255, 0);
+		return;
+	}
+	A.set_color(0, 128 + (int)A.Find_speed() * 3, 255 - (int)A.Find_speed() * 3);
 }
 
 
@@ -107,6 +156,10 @@ int main()
 {
 	setlocale(LC_ALL, "Russian");
 	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
+
+	Particle particle_1(600, 400); //создаем одну частицу с кооординатами и скоростями
+	particle_1.SetVx(30);
+	particle_1.SetVy(-10);
 
 	/*int x_number_of_particels; //определяет размер массива (прямоугольника), заполненного частицами
 	int y_number_of_particels;
@@ -118,14 +171,6 @@ int main()
 		ptr_for_particles_arrays[i] = new Particle[y_number_of_particels];
 	}*/
 	
-
-	sf::CircleShape circle(15); // радиус круга
-	circle.setFillColor(sf::Color::Red); // цвет круга
-	circle.setPosition(600, 400); // начальная позиция круга
-
-	float speedX = 20; // скорость движения по оси X
-	float speedY = -20; // скорость движения по оси Y
-
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -135,40 +180,16 @@ int main()
 				window.close();
 		}
 
-		// Обновление позиции круга
-		sf::Vector2f circlePos = circle.getPosition();
-		circle.setPosition(circlePos.x + speedX, circlePos.y + speedY);
-
-		speedY += 1; //реализация g
-
-		if (circlePos.y - boundY * 0.9 > -5) { //сила трения о пол
-			speedX *= 0.95;
-			if (abs(speedX) <= 0.6) speedX = 0;
-		}
-
-		// Проверка выхода за границы окна
-		if (circlePos.x > boundX * 0.9) {
-			circle.setPosition(boundX * 0.9, circlePos.y);
-			speedX = -speedX * 0.6;
-		}
-		else if (circlePos.x < boundX * 0.1) {
-			circle.setPosition(boundX * 0.1, circlePos.y);
-			speedX = -speedX * 0.6;
-		}
-		if (circlePos.y > boundY * 0.9) {
-			circle.setPosition(circlePos.x, boundY * 0.9);
-			speedY = -speedY * 0.6;
-			if (abs(speedY) <= 3) speedY = 0;
-		}
-
-		else sleep(25);
-
+		rebound(particle_1); //частица отталкивается
+		recolor(particle_1); //меняет цвет
+		particle_1.move(); //движется
+		particle_1.Earth_Gravity(); //притягивается к земле
+		sleep(25);
 
 		window.clear();
-		window.draw(circle);
+		window.draw(particle_1.GetCircle());
 		window.display();
 	}
 
 	return 0;
 }
-
