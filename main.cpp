@@ -42,7 +42,7 @@ class Particle
 
 private:
 	sf::CircleShape circle; //каждая частица отображается кругом 
-	const double r = 10; //радиус отображаемой частицы
+	const double r = 8; //радиус отображаемой частицы
 	double vx = 0; //скорости
 	double vy = 0;
 	const int mass = 1; //масса, сосредоточенная в центре
@@ -106,22 +106,22 @@ public:
 	void rebound() {
 		//когда частица врезается в стену/потолок, она отскакивает, теряя часть энергии
 		// Проверка выхода за границы окна
-		if (this->GetY() - boundY * 0.9 > -5) { //сила трения о пол
+		if (this->GetY() - boundY + 15 > -5) { //сила трения о пол
 			this->SetVx(this->GetVx() * 0.95);
 			if (abs(this->GetVx()) <= 0.1) this->SetVx(0); //если скорость слишком мала, то остановка
 		}
-		if (this->GetX() > boundX * 0.9) {
-			this->SetX(boundX * 0.9);
+		if (this->GetX() > boundX - 15) {
+			this->SetX(boundX - 15);
 			this->SetVx(-this->GetVx() * 0.7);
 		}
-		else if (this->GetX() < boundX * 0.1) {
-			this->SetX(boundX * 0.1);
+		else if (this->GetX() < 0) {
+			this->SetX(0);
 			this->SetVx(-this->GetVx() * 0.7);
 		}
-		if (this->GetY() > boundY * 0.9) {
-			this->SetY(boundY * 0.9);
+		if (this->GetY() > boundY - 15) {
+			this->SetY(boundY - 15);
 			this->SetVy(-this->GetVy() * 0.7);
-			if (abs(this->GetVy()) <= 0.1) this->SetVy(0); //если скорость слишком мала, то остановка
+			if (abs(this->GetVy()) <= 0.2) this->SetVy(0); //если скорость слишком мала, то остановка
 		}
 	}
 
@@ -160,22 +160,6 @@ int main()
 	setlocale(LC_ALL, "Russian");
 	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
 
-	sf::Color wallColor(0, 0, 0);
-	sf::Color backgroundColor(15, 15, 15);
-
-	sf::RectangleShape rectangle1(sf::Vector2f(5, boundY * 0.9 + 25)); // Создаем прямоугольник 
-	rectangle1.setFillColor(wallColor); // Устанавливаем цвет заливки
-	rectangle1.setPosition(boundX * 0.1 - 25, 0); // Устанавливаем координаты прямоугольника
-
-	sf::RectangleShape rectangle2(sf::Vector2f(5, boundY * 0.9 + 25)); // Создаем прямоугольник 
-	rectangle2.setFillColor(wallColor); // Устанавливаем цвет заливки
-	rectangle2.setPosition(boundX * 0.9 + 30, 0); // Устанавливаем координаты прямоугольника
-
-	sf::RectangleShape rectangle3(sf::Vector2f(boundX * 0.8 + 60, 5)); // Создаем прямоугольник 
-	rectangle3.setFillColor(wallColor); // Устанавливаем цвет заливки
-	rectangle3.setPosition(boundX * 0.1 - 25, boundY * 0.9 + 25); // Устанавливаем координаты прямоугольника
-
-
 	Particle particle_1(600, 400); //создаем одну частицу с кооординатами и скоростями
 	particle_1.SetVx(15);
 	particle_1.SetVy(-6);
@@ -207,11 +191,8 @@ int main()
 		particle_1.Earth_Gravity(); //притягивается к земле 2 раз
 		sleep(50);
 
-		window.clear(backgroundColor);
+		window.clear();
 		window.draw(particle_1.GetCircle());
-		window.draw(rectangle1);
-		window.draw(rectangle2);
-		window.draw(rectangle3);
 		window.display();
 	}
 
