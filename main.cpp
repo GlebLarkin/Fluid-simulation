@@ -54,14 +54,14 @@ private:
 
 public:
 	Particle() { //создает голубую частицу с коорд 0::0
-		sf::Color circleColor(0, 128, 255);
+		sf::Color circleColor(100, 128, 255);
 		circle.setFillColor(circleColor);
 		circle.setPosition(0, 0);
 		circle.setRadius(r);
 		std::cout << "голубая частица с координатами" << 0 << "::" << 0 << "создалась" << std::endl;
 	}
 	Particle(float x_, float y_) { //создает частицу с коорд х::у
-		sf::Color circleColor(0, 128, 255);
+		sf::Color circleColor(100, 128, 255);
 		circle.setFillColor(circleColor);
 		circle.setPosition(x_, y_);
 		circle.setRadius(r);
@@ -100,12 +100,48 @@ public:
 
 	long double Find_speed() { return sqrt((this->vx) * (this->vx) + (this->vy) * (this->vy)); } //вычмсляет полную скорость частицы
 
-	void set_color(int r, int g, int b) { //меняет цвет круга
-		sf::Color circleColor(r, g, b);
-		this->circle.setFillColor(circleColor);
-	}
 
 	sf::CircleShape GetCircle() { return this->circle; } //нужна только для отрисовки круга
+
+	void rebound() {
+		//когда частица врезается в стену/потолок, она отскакивает, теряя часть энергии
+		// Проверка выхода за границы окна
+		if (this->GetY() - boundY * 0.9 > -5) { //сила трения о пол
+			this->SetVx(this->GetVx() * 0.95);
+			if (abs(this->GetVx()) <= 0.5) this->SetVx(0); //если скорость слишком мала, то остановка
+		}
+		if (this->GetX() > boundX * 0.9) {
+			this->SetX(boundX * 0.9);
+			this->SetVx(-this->GetVx() * 0.7);
+		}
+		else if (this->GetX() < boundX * 0.1) {
+			this->SetX(boundX * 0.1);
+			this->SetVx(-this->GetVx() * 0.7);
+		}
+		if (this->GetY() > boundY * 0.9) {
+			this->SetY(boundY * 0.9);
+			this->SetVy(-this->GetVy() * 0.7);
+			if (abs(this->GetVy()) <= 0.5) this->SetVy(0); //если скорость слишком мала, то остановка
+		}
+	}
+
+	void recolour() {
+		//цвет частицы зависит от ее скорости
+		int red;
+		int green;
+		int blue;
+		if ((int)this->Find_speed() * 3 > 127) { //если скорость слишком большая, то цвет больше не меняем
+			red = 100;
+			green = 255;
+			blue = 0;
+			return;
+		}
+		red = 100;
+		green = 128 + (int)this->Find_speed() * 3;
+		blue = 240 - (int)this->Find_speed() * 3;
+		sf::Color circleColor(red, green, blue);
+		this->circle.setFillColor(circleColor);
+	}
 
 
 };
@@ -118,48 +154,32 @@ void Molecular_Interaction(Particle A, Particle B) { //взаимодействие между част
 	std::cout << "Взаимодействие между частицами работает!" << std::endl;
 }
 
-void rebound(Particle &A) {
-	//когда частица врезается в стену/потолок, она отскакивает, теряя часть энергии
-	// Проверка выхода за границы окна
-	if (A.GetY() - boundY * 0.9 > -5) { //сила трения о пол
-		A.SetVx(A.GetVx() * 0.95);
-		if (abs(A.GetVx()) <= 0.5) A.SetVx(0); //если скорость слишком мала, то остановка
-	}
-	if (A.GetX() > boundX * 0.9) {
-		A.SetX(boundX * 0.9);
-		A.SetVx(- A.GetVx() * 0.7);
-	}
-	else if (A.GetX() < boundX * 0.1) {
-		A.SetX(boundX * 0.1);
-		A.SetVx(-A.GetVx() * 0.7);
-	}
-	if (A.GetY() > boundY * 0.9) {
-		A.SetY(boundY * 0.9);
-		A.SetVy(-A.GetVy() * 0.7);
-		if (abs(A.GetVy()) <= 0.5) A.SetVy(0); //если скорость слишком мала, то остановка
-	}
-}
-
-void recolor(Particle &A) {
-	//цвет частицы зависит от ее скорости
-	if ((int)A.Find_speed() * 3 > 127) { //если скорость слишком большая, то цвет больше не меняем
-		A.set_color(0, 255, 0);
-		return;
-	}
-	A.set_color(0, 128 + (int)A.Find_speed() * 3, 255 - (int)A.Find_speed() * 3);
-}
-
-
-
 
 int main()
 {
 	setlocale(LC_ALL, "Russian");
 	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
 
+	sf::Color wallColor(0, 0, 0);
+	sf::Color backgroundColor(15, 15, 15);
+
+	sf::RectangleShape rectangle1(sf::Vector2f(5, boundY * 0.9 + 25)); // Создаем прямоугольник 
+	rectangle1.setFillColor(wallColor); // Устанавливаем цвет заливки
+	rectangle1.setPosition(boundX * 0.1 - 25, 0); // Устанавливаем координаты прямоугольника
+
+	sf::RectangleShape rectangle2(sf::Vector2f(5, boundY * 0.9 + 25)); // Создаем прямоугольник 
+	rectangle2.setFillColor(wallColor); // Устанавливаем цвет заливки
+	rectangle2.setPosition(boundX * 0.9 + 30, 0); // Устанавливаем координаты прямоугольника
+
+	sf::RectangleShape rectangle3(sf::Vector2f(boundX * 0.8 + 60, 5)); // Создаем прямоугольник 
+	rectangle3.setFillColor(wallColor); // Устанавливаем цвет заливки
+	rectangle3.setPosition(boundX * 0.1 - 25, boundY * 0.9 + 25); // Устанавливаем координаты прямоугольника
+
+
 	Particle particle_1(600, 400); //создаем одну частицу с кооординатами и скоростями
 	particle_1.SetVx(30);
-	particle_1.SetVy(-10);
+	particle_1.SetVy(-20);
+
 
 	/*int x_number_of_particels; //определяет размер массива (прямоугольника), заполненного частицами
 	int y_number_of_particels;
@@ -180,14 +200,17 @@ int main()
 				window.close();
 		}
 
-		rebound(particle_1); //частица отталкивается
-		recolor(particle_1); //меняет цвет
+		particle_1.rebound(); //частица отталкивается
+		particle_1.recolour(); //меняет цвет
 		particle_1.move(); //движется
 		particle_1.Earth_Gravity(); //притягивается к земле
 		sleep(25);
 
-		window.clear();
+		window.clear(backgroundColor);
 		window.draw(particle_1.GetCircle());
+		window.draw(rectangle1);
+		window.draw(rectangle2);
+		window.draw(rectangle3);
 		window.display();
 	}
 
