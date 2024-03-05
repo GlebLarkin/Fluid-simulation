@@ -118,8 +118,8 @@ public:
 			this->SetX(0);
 			this->SetVx(-this->GetVx() * 0.7);
 		}
-		if (this->GetY() > boundY - 15) {
-			this->SetY(boundY - 15);
+		if (this->GetY() > boundY - 17) {
+			this->SetY(boundY - 17);
 			this->SetVy(-this->GetVy() * 0.7);
 			if (abs(this->GetVy()) <= 0.2) this->SetVy(0); //если скорость слишком мала, то остановка
 		}
@@ -137,7 +137,7 @@ public:
 			return;
 		}
 		red = 100;
-		green = 128 + (int)(this->Find_speed() * 6);
+		green = 120 + (int)(this->Find_speed() * 6);
 		blue = 240 - (int)(this->Find_speed() * 6);
 		sf::Color circleColor(red, green, blue);
 		this->circle.setFillColor(circleColor);
@@ -155,14 +155,15 @@ void Molecular_Interaction(Particle A, Particle B) { //взаимодействие между част
 }
 
 
+
 int main()
 {
 	setlocale(LC_ALL, "Russian");
 	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
 
 	Particle particle_1(600, 400); //создаем одну частицу с кооординатами и скоростями
-	particle_1.SetVx(15);
-	particle_1.SetVy(-6);
+	particle_1.SetVx(-15);
+	particle_1.SetVy(-10);
 
 
 	/*int x_number_of_particels; //определяет размер массива (прямоугольника), заполненного частицами
@@ -190,6 +191,35 @@ int main()
 		particle_1.move(); //движется
 		particle_1.Earth_Gravity(); //притягивается к земле 2 раз
 		sleep(50);
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) //реализуем притяжение/отталкивания к/от курсора при нажатии мыши
+		{
+			sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+			sf::Vector2f direction = sf::Vector2f(mousePosition) - particle_1.GetCircle().getPosition();
+			float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+			direction /= length;
+			double vx = particle_1.GetVx();
+			double vy = particle_1.GetVy();
+			vx += direction.x;
+			vy += direction.y;
+
+			particle_1.SetVx(vx);
+			particle_1.SetVy(vy);
+		}
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+		{
+			sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+			sf::Vector2f direction = sf::Vector2f(mousePosition) - particle_1.GetCircle().getPosition();
+			float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+			direction /= length;
+			double vx = particle_1.GetVx();
+			double vy = particle_1.GetVy();
+			vx -= direction.x;
+			vy -= direction.y;
+
+			particle_1.SetVx(vx);
+			particle_1.SetVy(vy);
+		}
 
 		window.clear();
 		window.draw(particle_1.GetCircle());
