@@ -28,9 +28,9 @@ long double Find_Distance(double x1, double y1, double x2, double y2) { //ищет р
 	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
-void sleep(int ms) {
-	//задержка на ms миллисекунд
-	std::this_thread::sleep_for(std::chrono::microseconds(ms));
+void sleep(int mc) {
+	//задержка на ms микросекунд
+	std::this_thread::sleep_for(std::chrono::microseconds(mc));
 }
 
 
@@ -104,10 +104,9 @@ public:
 	sf::CircleShape GetCircle() { return this->circle; } //нужна только для отрисовки круга
 
 	void rebound() {
-		//когда частица врезается в стену/потолок, она отскакивает, теряя часть энергии
-		// Проверка выхода за границы окна
+		//когда частица врезается в стену/пол, она отскакивает, теряя часть энергии
 		if (this->GetY() - boundY + 15 > -5) { //сила трения о пол
-			this->SetVx(this->GetVx() * 0.95);
+			this->SetVx(this->GetVx() * 0.97);
 			if (abs(this->GetVx()) <= 0.1) this->SetVx(0); //если скорость слишком мала, то остановка
 		}
 		if (this->GetX() > boundX - 15) {
@@ -154,6 +153,43 @@ void Molecular_Interaction(Particle A, Particle B) { //взаимодействие между част
 	std::cout << "Взаимодействие между частицами работает!" << std::endl;
 }
 
+void left_mouse_click(Particle &A, RenderWindow* window_ptr) {
+	//реализуем притяжение к курсору при нажатии мыши
+	//есть два варианта: с зависимостью от длины и от длины в квадрате
+	//выбираем второй, так как хотим больше взаимодецствовать с близкими частицами
+	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
+	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
+	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+	//direction /= (length / 0.4);
+	direction = (Vector2f)(direction * 100.0f / (length * length));
+
+	double vx = A.GetVx();
+	double vy = A.GetVy();
+
+	vx += direction.x;
+	vy += direction.y;
+	if (length < 40) return; //при зависимости от квадрата длины частицы не должны приближаться к курсору слишком сильно
+	A.SetVx(vx);
+	A.SetVy(vy);
+}
+
+void right_mouse_click(Particle& A, RenderWindow* window_ptr) {
+	//реализуем отталкивания от курсора при нажатии мыши
+	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
+	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
+	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+	direction = (Vector2f)(direction * 100.0f / (length * length));
+
+	double vx = A.GetVx();
+	double vy = A.GetVy();
+
+	vx -= 0.3 * direction.x;
+	vy -= 0.3 * direction.y;
+
+	A.SetVx(vx);
+	A.SetVy(vy);
+}
+
 
 
 int main()
@@ -190,37 +226,11 @@ int main()
 		particle_1.recolour(); //меняет цвет
 		particle_1.move(); //движется
 		particle_1.Earth_Gravity(); //притягивается к земле 2 раз
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(particle_1, &window); //притяжение к курсорe при нажатии лкм
+		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(particle_1, &window); //отталкивание от курсора при нажатии пкм
+
 		sleep(50);
-
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) //реализуем притяжение/отталкивания к/от курсора при нажатии мыши
-		{
-			sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-			sf::Vector2f direction = sf::Vector2f(mousePosition) - particle_1.GetCircle().getPosition();
-			float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-			direction /= length;
-			double vx = particle_1.GetVx();
-			double vy = particle_1.GetVy();
-			vx += direction.x;
-			vy += direction.y;
-
-			particle_1.SetVx(vx);
-			particle_1.SetVy(vy);
-		}
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-		{
-			sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-			sf::Vector2f direction = sf::Vector2f(mousePosition) - particle_1.GetCircle().getPosition();
-			float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-			direction /= length;
-			double vx = particle_1.GetVx();
-			double vy = particle_1.GetVy();
-			vx -= direction.x;
-			vy -= direction.y;
-
-			particle_1.SetVx(vx);
-			particle_1.SetVy(vy);
-		}
-
 		window.clear();
 		window.draw(particle_1.GetCircle());
 		window.display();
