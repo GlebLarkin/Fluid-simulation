@@ -2,112 +2,109 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
-#include <vector>
-#include <set>
 #include <iostream>
 
 using namespace sf;
 
 //================================================//
-//  !!!ПОСЛЕ ТЕСТОВ ЗАКОММЕНТИРОВАТЬ ВСЕ СOUT!!!
+//  !!!AFTER TESTS COMMENT ALL COUT!!!
 //================================================//
 
 
 
-//возможно надо заменить double на float, чтобы было быстрее
-const double PI = 3.14; //число пи 
-const double g = 0.10; //ускорение свободного падения
-const int coef = 1; //коэф пропорциональности между силой отталкивания и массами частиц деленными на расстояние между ними
-const int boundX = 1200; //размеры открываемого окна в sfml
-const int boundY = 800; //размеры открываемого окна в sfml
-const float Radius_of_Interaction = 1; //радиус области взаимодействия данной частицы с остальными
+//maybe we need to replace double with float to make it faster
+const double PI = 3.14; //pi 
+const double g = 0.10; //acceleration of free fall
+const int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
+const int boundX = 1200; //size of the sfml window
+const int boundY = 800;
+const float Radius_of_Interaction = 1; //the radius of the area of interaction of this particle with the rest
 
 
 
-long double Find_Distance(double x1, double y1, double x2, double y2) { //ищет расстояние между центрами двух частиц
+long double Find_Distance(double x1, double y1, double x2, double y2) { //find the distance between the centers of two particles
 	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
 void sleep(int mc) {
-	//задержка на ms микросекунд
+	//delay for ms microseconds
 	std::this_thread::sleep_for(std::chrono::microseconds(mc));
 }
 
 
 class Particle
-	//класс самого градиента "молекулы" и ее отображения в виде частицы
-	//умеет притягиваться к земле, отталкиваться от других частиц и обладает вязкостью
-	//обитает в двумерном простратстве (пока что)
+	//the class of the gradient of the "molecule" itself and its display as a particle
+	//the particle is able to attract to the earth, repel other particles and has viscosity
+	//it lives in two-dimensional space
 {
 
 private:
-	sf::CircleShape circle; //каждая частица отображается кругом 
-	const double r = 8; //радиус отображаемой частицы
-	double vx = 0; //скорости
+	sf::CircleShape circle; //every particle is shown by the circle
+	const double r = 8; //radius of a circle
+	double vx = 0; //velocity
 	double vy = 0;
-	const int mass = 1; //масса, сосредоточенная в центре
+	const int mass = 1; //the mass that is concentrated in the center
 
 	//===================================================================================//
-	const float a = 1; //смещение 1/x^2 по осям x и у в методе Gradient_of_Interaction
-	const float alpha = 1; //коэф растяжения 1/x^2 в методе Gradient_of_Interaction
+	const float a = 1; //offset 1/x^2 along the x and y axes in the Gradient_of_Interaction method
+	const float alpha = 1; //the coefficient of stretching is 1 / x ^ 2 in the Gradient_of_Interaction method
 	//===================================================================================//
 
 public:
-	Particle() { //создает голубую частицу с коорд 0::0
+	Particle() { //creates a blue particle with coord 0::0
 		sf::Color circleColor(100, 255, 127);
 		circle.setFillColor(circleColor);
 		circle.setPosition(0, 0);
 		circle.setRadius(r);
-		std::cout << "голубая частица с координатами" << 0 << "::" << 0 << "создалась" << std::endl;
+		std::cout << "the blue particle with coord" << 0 << "::" << 0 << "have been created" << std::endl;
 	}
-	Particle(float x_, float y_) { //создает частицу с коорд х::у
+	Particle(float x_, float y_) { //creates a blue particle with coord 0::0
 		sf::Color circleColor(100, 255, 127);
 		circle.setFillColor(circleColor);
 		circle.setPosition(x_, y_);
 		circle.setRadius(r);
-		std::cout << "голубая частица с координатами" << x_ << "::" << y_ << "создалась" << std::endl;
+		std::cout << "the blue particle with coord" << x_ << "::" << y_ << "have been created" << std::endl;
 	}
 
-	double GetX() { return this->circle.getPosition().x; } //геттеры и сеттеры для коорд
-	double GetY() { return this->circle.getPosition().y; } //по сути они уже встроены в sfml, но так код получается слишком длинный(
+	double GetX() { return this->circle.getPosition().x; } //coord getters and setters
+	double GetY() { return this->circle.getPosition().y; }
 	void SetX(double x_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x_, y); }
 	void SetY(double y_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x, y_); }
 
-	double GetVx() { return this->vx; } //геттеры и сеттеры для скоростей
+	double GetVx() { return this->vx; } //vertice getters and setters
 	double GetVy() { return this->vy; }
 	void SetVx(double vx_) { this->vx = vx_; }
 	void SetVy(double vy_) { this->vy = vy_; }
 
-	void Earth_Gravity() { this->vy += g; } //гравитация, притягивает частицу вниз
+	void Earth_Gravity() { this->vy += g; } //its really gravity, makes the particle fall faster
 
 	double Gradient_of_Interaction(Particle A) {
-		//рассчитывает величину "поля" данной частицы в точке другой частицы A с коорд x::y
-		//возвращает 0, если частица вне радиуса взаимодействия, величину "градиента" в противном случае
-		//величина "градиента" зависит от координаты как 1/x^2, причем гипербола смещена вправо на константу a по оси х, вниз на а по оси у и растянута в альфа раз
-		//!АЛЬФУ В ФОРМУЛЕ НУЖНО ПОМЕНЯТЬ
-		//ro - расстояние от данной частицы до частицы А
+		//calculates the value of the "field" of a given particle at the point of another particle A with the coord x::y
+		//returns 0 if the particle is outside the interaction radius, the value of the "gradient" otherwise
+		//the magnitude of the "gradient" depends on the coordinate as 1/x^2, and the hyperbola is shifted to the right by a constant a on the x axis, down by a on the y axis and stretched alpha times
+		//ro - the distance from this particle to particle A
 		double ro = Find_Distance(A.GetX(), A.GetY(), this->GetX(), this->GetY());
 		if (ro >= Radius_of_Interaction) return 0;
 		return (alpha / ((ro + a) * (ro + a)) - a);
 	}
 
-	void move() {  //движение частицы
+	void move() {  //particle movenment
 		double x = GetX();
 		double y = GetY();
-		this->circle.setPosition(x += vx, y += vy); 
+		this->circle.setPosition(x += vx, y += vy);
 	}
 
 
-	long double Find_speed() { return sqrt((this->vx) * (this->vx) + (this->vy) * (this->vy)); } //вычмсляет полную скорость частицы
+	long double Find_speed() { return sqrt((this->vx) * (this->vx) + (this->vy) * (this->vy)); } //calculates the total velocity of the particle
 
 
-	sf::CircleShape GetCircle() { return this->circle; } //нужна только для отрисовки круга
+	sf::CircleShape GetCircle() { return this->circle; } //returns the circle of the particle
 
 	void rebound() {
-		//когда частица врезается в стену/пол, она отскакивает, теряя часть энергии
-		if (this->GetY() - boundY + 15 > -5) { //сила трения о пол
-			this->SetVx(this->GetVx() * 0.97);
-			if (abs(this->GetVx()) <= 0.1) this->SetVx(0); //если скорость слишком мала, то остановка
+		//when a particle hits a wall/floor, it bounces off, losing some of its energy
+		if (this->GetY() - boundY + 15 > -5) { //the force of friction on the floor
+				this->SetVx(this->GetVx() * 0.97);
+			//if (abs(this->GetVx()) <= 0.1) this->SetVx(0); //if the velocity is too low, the particle stops
 		}
 		if (this->GetX() > boundX - 15) {
 			this->SetX(boundX - 15);
@@ -120,16 +117,16 @@ public:
 		if (this->GetY() > boundY - 17) {
 			this->SetY(boundY - 17);
 			this->SetVy(-this->GetVy() * 0.7);
-			if (abs(this->GetVy()) <= 0.2) this->SetVy(0); //если скорость слишком мала, то остановка
+			if (abs(this->GetVy()) <= 0.2) this->SetVy(0); //if the velocity is too low, the particle stops
 		}
 	}
 
 	void recolour() {
-		//цвет частицы зависит от ее скорости
+		//the color of the particle depends on its velocity
 		int red;
 		int green;
 		int blue;
-		if ((int)this->Find_speed() * 6 > 127) { //если скорость слишком большая, то цвет больше не меняем
+		if ((int)this->Find_speed() * 6 > 127) { //we won't change color if the velocity is too high
 			red = 100;
 			green = 255;
 			blue = 127;
@@ -147,16 +144,22 @@ public:
 
 
 
-void Molecular_Interaction(Particle A, Particle B) { //взаимодействие между частицами
-	//ТУТ ПОТОМ БУДЕТ КАРТА ГРАДИЕНТА И ХЭШИРОВАНИЕ
-	//============ ДОПИСАТЬ ===============//
-	std::cout << "Взаимодействие между частицами работает!" << std::endl;
+void Molecular_Interaction(Particle A, Particle B) { //interaction between particles
+	//THEN HERE WILL BE A GRADIENT MAP AND HASHING
+	//============ FINISH WRITING ===============//
+	std::cout << "The molecular interaction works!" << std::endl;
 }
 
-void left_mouse_click(Particle &A, RenderWindow* window_ptr) {
-	//реализуем притяжение к курсору при нажатии мыши
-	//есть два варианта: с зависимостью от длины и от длины в квадрате
-	//выбираем второй, так как хотим больше взаимодецствовать с близкими частицами
+void add_impusle(Particle& A) { A.SetVy(-5.0); } //when we press enter, the particle gets impulse
+
+
+void left_mouse_click(Particle& A, RenderWindow* window_ptr) {
+	//we realize the attraction to the cursor when you click the mouse(lmb)
+	//there are two options: depending on the length and on the length squared
+	//we choose the second one, because we want to interact more with close particles
+
+	if (boundY - A.GetY() <= 17) { A.SetVy(-0.5); A.SetY(boundY - 17); return; } //this fixes sticking to the floor
+
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -168,13 +171,13 @@ void left_mouse_click(Particle &A, RenderWindow* window_ptr) {
 
 	vx += direction.x;
 	vy += direction.y;
-	if (length < 40) return; //при зависимости от квадрата длины частицы не должны приближаться к курсору слишком сильно
+	if (length < 40) return; //depending on the square of the length, the particles should not approach the cursor too much
 	A.SetVx(vx);
 	A.SetVy(vy);
 }
 
 void right_mouse_click(Particle& A, RenderWindow* window_ptr) {
-	//реализуем отталкивания от курсора при нажатии мыши
+	//we relize repulsion from the cursor when the mouse is clicked(rmb)
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -197,19 +200,19 @@ int main()
 	setlocale(LC_ALL, "Russian");
 	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
 
-	Particle particle_1(600, 400); //создаем одну частицу с кооординатами и скоростями
+	Particle particle_1(600, 400); //creating a single particle with coordinates and velocities
 
 
-	/*int x_number_of_particels; //определяет размер массива (прямоугольника), заполненного частицами
+	/*int x_number_of_particels; //defines the size of an array (rectangle) filled with particles
 	int y_number_of_particels;
-	std::cout << "Введите размеры прямоугольника частиц: " << std::endl;
+	std::cout << "Enter the dimensions of the particle rectangle: " << std::endl;
 	std::cin >> x_number_of_particels >> y_number_of_particels;
 
-	Particle** ptr_for_particles_arrays = new Particle*[x_number_of_particels]; //создаем двумерный массив для частиц
+	Particle** ptr_for_particles_arrays = new Particle*[x_number_of_particels]; //creating a two-dimensional array for particles
 	for (int i = 0; i < x_number_of_particels; i++) {
 		ptr_for_particles_arrays[i] = new Particle[y_number_of_particels];
 	}*/
-	
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -219,14 +222,15 @@ int main()
 				window.close();
 		}
 
-		particle_1.rebound(); //частица отталкивается
-		particle_1.Earth_Gravity(); //притягивается к земле 1 раз
-		particle_1.recolour(); //меняет цвет
-		particle_1.move(); //движется
-		particle_1.Earth_Gravity(); //притягивается к земле 2 раз
+		particle_1.rebound(); //the particle bounds
+		particle_1.Earth_Gravity(); //it is attracted to the earth 1 time
+		particle_1.recolour(); //changes color
+		particle_1.move(); //moves
+		particle_1.Earth_Gravity(); //it is attracted to the earth 2 time
 
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(particle_1, &window); //притяжение к курсорe при нажатии лкм
-		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(particle_1, &window); //отталкивание от курсора при нажатии пкм
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(particle_1, &window); //attraction to the cursor when pressing the lmb
+		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(particle_1, &window); //repulsion from the cursor when pressing the rmb
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) add_impusle(particle_1);
 
 		sleep(50);
 		window.clear();
