@@ -6,27 +6,22 @@
 
 using namespace sf;
 
-//================================================//
-//  !!!AFTER TESTS COMMENT ALL COUT!!!
-//================================================//
 
-
-
-//maybe we need to replace double with float to make it faster
-const double PI = 3.14; //pi 
-const double g = 0.10; //acceleration of free fall
-const int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
-const int boundX = 1200; //size of the sfml window
-const int boundY = 800;
+const float PI = 3.14; //pi 
+const float g = 0.10; //acceleration of free fall
+const unsigned int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
+const unsigned int boundX = 1200; //size of the sfml window
+const unsigned int boundY = 800;
 const float Radius_of_Interaction = 1; //the radius of the area of interaction of this particle with the rest
 
 
 
-long double Find_Distance(double x1, double y1, double x2, double y2) { //find the distance between the centers of two particles
+long double Find_Distance(const double x1, const double y1, const double x2, const double y2) { //find the distance between the centers of two particles
 	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
-void sleep(int mc) {
+
+void sleep(unsigned int mc) {
 	//delay for ms microseconds
 	std::this_thread::sleep_for(std::chrono::microseconds(mc));
 }
@@ -40,7 +35,7 @@ class Particle
 
 private:
 	sf::CircleShape circle; //every particle is shown by the circle
-	const double r = 8; //radius of a circle
+	const float r = 8; //radius of a circle
 	double vx = 0; //velocity
 	double vy = 0;
 	const int mass = 1; //the mass that is concentrated in the center
@@ -51,30 +46,25 @@ private:
 	//===================================================================================//
 
 public:
-	Particle() { //creates a blue particle with coord 0::0
-		sf::Color circleColor(100, 255, 127);
-		circle.setFillColor(circleColor);
-		circle.setPosition(0, 0);
-		circle.setRadius(r);
-		std::cout << "the blue particle with coord" << 0 << "::" << 0 << "have been created" << std::endl;
-	}
-	Particle(float x_, float y_) { //creates a blue particle with coord 0::0
+	
+	Particle(float x_, float y_) { //creates a blue particle with coord x::y
 		sf::Color circleColor(100, 255, 127);
 		circle.setFillColor(circleColor);
 		circle.setPosition(x_, y_);
 		circle.setRadius(r);
-		std::cout << "the blue particle with coord" << x_ << "::" << y_ << "have been created" << std::endl;
 	}
 
-	double GetX() { return this->circle.getPosition().x; } //coord getters and setters
-	double GetY() { return this->circle.getPosition().y; }
-	void SetX(double x_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x_, y); }
-	void SetY(double y_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x, y_); }
+	Particle() : Particle(boundX / 2, boundY / 2) {} //creates a blue particle with coord boundX / 2::boundY / 2
 
-	double GetVx() { return this->vx; } //vertice getters and setters
-	double GetVy() { return this->vy; }
-	void SetVx(double vx_) { this->vx = vx_; }
-	void SetVy(double vy_) { this->vy = vy_; }
+	double GetX() const { return this->circle.getPosition().x; } //coord getters and setters
+	double GetY() const { return this->circle.getPosition().y; }
+	void SetX(const double x_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x_, y); }
+	void SetY(const double y_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x, y_); }
+
+	double GetVx() const { return this->vx; } //vertice getters and setters
+	double GetVy() const { return this->vy; }
+	void SetVx(const double vx_) { this->vx = vx_; }
+	void SetVy(const double vy_) { this->vy = vy_; }
 
 	void Earth_Gravity() { this->vy += g; } //its really gravity, makes the particle fall faster
 
@@ -95,10 +85,10 @@ public:
 	}
 
 
-	long double Find_speed() { return sqrt((this->vx) * (this->vx) + (this->vy) * (this->vy)); } //calculates the total velocity of the particle
+	long double Find_speed() const { return sqrt((this->vx) * (this->vx) + (this->vy) * (this->vy)); } //calculates the total velocity of the particle
 
 
-	sf::CircleShape GetCircle() { return this->circle; } //returns the circle of the particle
+	sf::CircleShape GetCircle() const { return this->circle; } //returns the circle of the particle
 
 	void rebound() {
 		//when a particle hits a wall/floor, it bounces off, losing some of its energy
@@ -150,6 +140,7 @@ void Molecular_Interaction(Particle A, Particle B) { //interaction between parti
 	std::cout << "The molecular interaction works!" << std::endl;
 }
 
+
 void add_impusle(Particle& A) { A.SetVy(-5.0); } //when we press enter, the particle gets impulse
 
 
@@ -176,6 +167,7 @@ void left_mouse_click(Particle& A, RenderWindow* window_ptr) {
 	A.SetVy(vy);
 }
 
+
 void right_mouse_click(Particle& A, RenderWindow* window_ptr) {
 	//we relize repulsion from the cursor when the mouse is clicked(rmb)
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
@@ -194,25 +186,45 @@ void right_mouse_click(Particle& A, RenderWindow* window_ptr) {
 }
 
 
+Particle** create_particle_array(const unsigned int x_number_of_particels) {
+	//creates array of particles x_number_of_particels * x_number_of_particels;
+	Particle** ptr_for_particles_arrays = new Particle * [x_number_of_particels];
+	for (unsigned int i = 0; i < x_number_of_particels; i++) {
+		ptr_for_particles_arrays[i] = new Particle[x_number_of_particels];
+	}
+
+	for (unsigned int i = 0; i < x_number_of_particels; i++) {
+		for (unsigned int j = 0; j < x_number_of_particels; j++) {
+			ptr_for_particles_arrays[i][j].SetX(1);
+			ptr_for_particles_arrays[i][j].SetY(1);
+		}
+	}
+	return ptr_for_particles_arrays;
+}
+
+void delete_particle_array(Particle** ptr_for_particles_arrays, const unsigned int x_number_of_particels) {
+	//deletes array of particles x_number_of_particels * x_number_of_particels;
+	for (unsigned int i = 0; i < x_number_of_particels; i++) {
+		delete[] ptr_for_particles_arrays[i];
+	}
+	delete[] ptr_for_particles_arrays;
+}
 
 int main()
 {
 	setlocale(LC_ALL, "Russian");
 	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
 
-	Particle particle_1(600, 400); //creating a single particle with coordinates and velocities
+	Particle particle_1; //creating a single particle with coordinates and velocities
 
 
-	/*int x_number_of_particels; //defines the size of an array (rectangle) filled with particles
-	int y_number_of_particels;
-	std::cout << "Enter the dimensions of the particle rectangle: " << std::endl;
-	std::cin >> x_number_of_particels >> y_number_of_particels;
+	unsigned int x_number_of_particels = 0; //defines the size of an array (square) filled with particles
+	//std::cout << "Enter the dimensions of the particle square: " << std::endl;
+	//std::cin >> x_number_of_particels;
+	Particle** ptr_for_particles_arrays = create_particle_array(x_number_of_particels); //creates the array filled with particles
 
-	Particle** ptr_for_particles_arrays = new Particle*[x_number_of_particels]; //creating a two-dimensional array for particles
-	for (int i = 0; i < x_number_of_particels; i++) {
-		ptr_for_particles_arrays[i] = new Particle[y_number_of_particels];
-	}*/
 
+	
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -230,13 +242,13 @@ int main()
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(particle_1, &window); //attraction to the cursor when pressing the lmb
 		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(particle_1, &window); //repulsion from the cursor when pressing the rmb
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) add_impusle(particle_1);
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) add_impusle(particle_1);
 
 		sleep(50);
 		window.clear();
 		window.draw(particle_1.GetCircle());
 		window.display();
 	}
-
+	delete_particle_array(ptr_for_particles_arrays, x_number_of_particels); //clears memory
 	return 0;
 }
