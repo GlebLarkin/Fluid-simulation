@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <random>
 
 using namespace sf;
 
@@ -12,6 +13,7 @@ const float g = 0.10; //acceleration of free fall
 const unsigned int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
 const unsigned int boundX = 1200; //size of the sfml window
 const unsigned int boundY = 800;
+const float r = 4; //radius of a circle of a particle
 const float Radius_of_Interaction = 1; //the radius of the area of interaction of this particle with the rest
 
 
@@ -35,7 +37,6 @@ class Particle
 
 private:
 	sf::CircleShape circle; //every particle is shown by the circle
-	const float r = 8; //radius of a circle
 	double vx = 0; //velocity
 	double vy = 0;
 	const int mass = 1; //the mass that is concentrated in the center
@@ -143,7 +144,6 @@ void Molecular_Interaction(Particle A, Particle B) { //interaction between parti
 
 void add_impusle(Particle& A) { A.SetVy(-5.0); } //when we press enter, the particle gets impulse
 
-
 void left_mouse_click(Particle& A, RenderWindow* window_ptr) {
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
@@ -167,7 +167,6 @@ void left_mouse_click(Particle& A, RenderWindow* window_ptr) {
 	A.SetVy(vy);
 }
 
-
 void right_mouse_click(Particle& A, RenderWindow* window_ptr) {
 	//we relize repulsion from the cursor when the mouse is clicked(rmb)
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
@@ -186,6 +185,16 @@ void right_mouse_click(Particle& A, RenderWindow* window_ptr) {
 }
 
 
+
+double generateRandomNumber() {
+	//generate random number from zero to one
+	std::random_device rd;
+	std::mt19937 random_number(rd());
+	std::uniform_real_distribution<double> dis(0.0, 1.0);
+
+	return dis(random_number); // Генерируем и возвращаем случайное число от 0 до 1
+}
+
 Particle** create_particle_array(const unsigned int x_number_of_particels) {
 	//creates array of particles x_number_of_particels * x_number_of_particels;
 	Particle** ptr_for_particles_arrays = new Particle * [x_number_of_particels];
@@ -195,8 +204,8 @@ Particle** create_particle_array(const unsigned int x_number_of_particels) {
 
 	for (unsigned int i = 0; i < x_number_of_particels; i++) {
 		for (unsigned int j = 0; j < x_number_of_particels; j++) {
-			ptr_for_particles_arrays[i][j].SetX(1);
-			ptr_for_particles_arrays[i][j].SetY(1);
+			ptr_for_particles_arrays[i][j].SetX(boundX * generateRandomNumber()); //every particle from the array has random coord
+			ptr_for_particles_arrays[i][j].SetY(boundY * generateRandomNumber());
 		}
 	}
 	return ptr_for_particles_arrays;
@@ -209,6 +218,8 @@ void delete_particle_array(Particle** ptr_for_particles_arrays, const unsigned i
 	}
 	delete[] ptr_for_particles_arrays;
 }
+
+
 
 int main()
 {
