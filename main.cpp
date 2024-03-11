@@ -223,7 +223,10 @@ void delete_particle_array(Particle** ptr_for_particles_arrays, const unsigned i
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode(); // Получаем размер рабочего стола
+
+	sf::RenderWindow window(desktop, "Fluid simulation", sf::Style::Fullscreen);
+	//sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
 
 
 	unsigned int x_number_of_particels = 40; //defines the size of an array (square) filled with particles
@@ -235,7 +238,7 @@ int main()
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
+			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
 				window.close();
 		}
 
