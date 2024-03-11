@@ -7,14 +7,29 @@
 
 using namespace sf;
 
+unsigned int getScreenWidth() //returns screen size
+{
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+	return desktop.width;
+}
+
+unsigned int getScreenHeight() //
+{
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+	return desktop.height;
+}
+
+
 
 const float PI = 3.14; //pi 
 const float g = 0.10; //acceleration of free fall
 const unsigned int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
-const unsigned int boundX = 1920; //size of the sfml window
-const unsigned int boundY = 1080;
+const unsigned int boundX = getScreenWidth(); //size of the sfml window
+const unsigned int boundY = getScreenHeight();
 const float r = 8; //radius of a circle of a particle
 const float Radius_of_Interaction = 1; //the radius of the area of interaction of this particle with the rest
+
+
 
 
 
@@ -223,11 +238,8 @@ void delete_particle_array(Particle** ptr_for_particles_arrays, const unsigned i
 
 int main()
 {
-	sf::VideoMode desktop = sf::VideoMode::getDesktopMode(); // Получаем размер рабочего стола
-
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode(); //sfml window is fullscreen
 	sf::RenderWindow window(desktop, "Fluid simulation", sf::Style::Fullscreen);
-	//sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
-
 
 	unsigned int x_number_of_particels = 40; //defines the size of an array (square) filled with particles
 	Particle** ptr_for_particles_arrays = create_particle_array(x_number_of_particels); //creates the array filled with particles
