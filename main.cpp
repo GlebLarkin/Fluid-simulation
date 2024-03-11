@@ -11,9 +11,9 @@ using namespace sf;
 const float PI = 3.14; //pi 
 const float g = 0.10; //acceleration of free fall
 const unsigned int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
-const unsigned int boundX = 1200; //size of the sfml window
-const unsigned int boundY = 800;
-const float r = 4; //radius of a circle of a particle
+const unsigned int boundX = 1920; //size of the sfml window
+const unsigned int boundY = 1080;
+const float r = 8; //radius of a circle of a particle
 const float Radius_of_Interaction = 1; //the radius of the area of interaction of this particle with the rest
 
 
@@ -223,19 +223,13 @@ void delete_particle_array(Particle** ptr_for_particles_arrays, const unsigned i
 
 int main()
 {
-	setlocale(LC_ALL, "Russian");
 	sf::RenderWindow window(sf::VideoMode(boundX, boundY), "Fluid simulation");
 
-	Particle particle_1; //creating a single particle with coordinates and velocities
 
-
-	unsigned int x_number_of_particels = 0; //defines the size of an array (square) filled with particles
-	//std::cout << "Enter the dimensions of the particle square: " << std::endl;
-	//std::cin >> x_number_of_particels;
+	unsigned int x_number_of_particels = 40; //defines the size of an array (square) filled with particles
 	Particle** ptr_for_particles_arrays = create_particle_array(x_number_of_particels); //creates the array filled with particles
-
-
 	
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -245,20 +239,28 @@ int main()
 				window.close();
 		}
 
-		particle_1.rebound(); //the particle bounds
-		particle_1.Earth_Gravity(); //it is attracted to the earth 1 time
-		particle_1.recolour(); //changes color
-		particle_1.move(); //moves
-		particle_1.Earth_Gravity(); //it is attracted to the earth 2 time
+		
+		for (unsigned int i = 0; i < x_number_of_particels; i++) {
+			for (unsigned int j = 0; j < x_number_of_particels; j++) {
+				ptr_for_particles_arrays[i][j].rebound();
+				ptr_for_particles_arrays[i][j].Earth_Gravity();
+				ptr_for_particles_arrays[i][j].recolour();
+				ptr_for_particles_arrays[i][j].move();
+				ptr_for_particles_arrays[i][j].Earth_Gravity();
 
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(particle_1, &window); //attraction to the cursor when pressing the lmb
-		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(particle_1, &window); //repulsion from the cursor when pressing the rmb
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) add_impusle(particle_1);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_arrays[i][j], &window); //attraction to the cursor when pressing the lmb
+				else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(ptr_for_particles_arrays[i][j], &window); //repulsion from the cursor when pressing the rmb
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) add_impusle(ptr_for_particles_arrays[i][j]);
 
-		sleep(50);
-		window.clear();
-		window.draw(particle_1.GetCircle());
+				
+				window.draw(ptr_for_particles_arrays[i][j].GetCircle());
+			}
+		}
+		
 		window.display();
+		window.clear();
+		sleep(50);
+		
 	}
 	delete_particle_array(ptr_for_particles_arrays, x_number_of_particels); //clears memory
 	return 0;
