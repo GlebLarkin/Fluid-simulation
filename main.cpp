@@ -26,10 +26,8 @@ const float g = 0.10; //acceleration of free fall
 const unsigned int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
 const unsigned int boundX = getScreenWidth(); //size of the sfml window
 const unsigned int boundY = getScreenHeight();
-const float r = 8; //radius of a circle of a particle
+const float r = 10; //radius of a circle of a particle
 const float Radius_of_Interaction = 1; //the radius of the area of interaction of this particle with the rest
-
-
 
 
 
@@ -70,7 +68,7 @@ public:
 		circle.setRadius(r);
 	}
 
-	Particle() : Particle(boundX / 2, boundY / 2) {} //creates a blue particle with coord boundX / 2::boundY / 2
+	Particle() : Particle((unsigned int)boundX / 2, (unsigned int)boundY / 2) {} //creates a blue particle with coord boundX / 2::boundY / 2
 
 	double GetX() const { return this->circle.getPosition().x; } //coord getters and setters
 	double GetY() const { return this->circle.getPosition().y; }
@@ -157,9 +155,7 @@ void Molecular_Interaction(Particle A, Particle B) { //interaction between parti
 }
 
 
-void add_impusle(Particle& A) { A.SetVy(-5.0); } //when we press enter, the particle gets impulse
-
-void left_mouse_click(Particle& A, RenderWindow* window_ptr) {
+void left_mouse_click(Particle& A, const RenderWindow* window_ptr) {
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
 	//we choose the second one, because we want to interact more with close particles
@@ -169,24 +165,22 @@ void left_mouse_click(Particle& A, RenderWindow* window_ptr) {
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+	if (length > 300) return;
 	//direction /= (length / 0.4);
 	direction = (Vector2f)(direction * 100.0f / (length * length));
 
-	double vx = A.GetVx();
-	double vy = A.GetVy();
-
-	vx += direction.x;
-	vy += direction.y;
 	if (length < 40) return; //depending on the square of the length, the particles should not approach the cursor too much
-	A.SetVx(vx);
-	A.SetVy(vy);
+
+	A.SetVx(A.GetVx() + direction.x);
+	A.SetVy(A.GetVy() + direction.y);
 }
 
-void right_mouse_click(Particle& A, RenderWindow* window_ptr) {
+void right_mouse_click(Particle& A, const RenderWindow* window_ptr) {
 	//we relize repulsion from the cursor when the mouse is clicked(rmb)
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+	if (length > 300) return;
 	direction = (Vector2f)(direction * 100.0f / (length * length));
 
 	double vx = A.GetVx();
@@ -210,29 +204,17 @@ double generateRandomNumber() {
 	return dis(random_number); // Генерируем и возвращаем случайное число от 0 до 1
 }
 
-Particle** create_particle_array(const unsigned int x_number_of_particels) {
-	//creates array of particles x_number_of_particels * x_number_of_particels;
-	Particle** ptr_for_particles_arrays = new Particle * [x_number_of_particels];
-	for (unsigned int i = 0; i < x_number_of_particels; i++) {
-		ptr_for_particles_arrays[i] = new Particle[x_number_of_particels];
-	}
+Particle* create_particle_array(const unsigned int number_of_particels) {
+	//creates array of particles number_of_particels
+	Particle* ptr_for_particles_array = new Particle [number_of_particels];
 
-	for (unsigned int i = 0; i < x_number_of_particels; i++) {
-		for (unsigned int j = 0; j < x_number_of_particels; j++) {
-			ptr_for_particles_arrays[i][j].SetX(boundX * generateRandomNumber()); //every particle from the array has random coord
-			ptr_for_particles_arrays[i][j].SetY(boundY * generateRandomNumber());
-		}
+	for (unsigned int i = 0; i < number_of_particels; i++) {
+		ptr_for_particles_array[i].SetX(boundX * generateRandomNumber()); //every particle from the array has random coord
+		ptr_for_particles_array[i].SetY(boundY * generateRandomNumber());
 	}
-	return ptr_for_particles_arrays;
+	return ptr_for_particles_array;
 }
 
-void delete_particle_array(Particle** ptr_for_particles_arrays, const unsigned int x_number_of_particels) {
-	//deletes array of particles x_number_of_particels * x_number_of_particels;
-	for (unsigned int i = 0; i < x_number_of_particels; i++) {
-		delete[] ptr_for_particles_arrays[i];
-	}
-	delete[] ptr_for_particles_arrays;
-}
 
 
 
@@ -240,9 +222,11 @@ int main()
 {
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode(); //sfml window is fullscreen
 	sf::RenderWindow window(desktop, "Fluid simulation", sf::Style::Fullscreen);
+	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
 
-	unsigned int x_number_of_particels = 40; //defines the size of an array (square) filled with particles
-	Particle** ptr_for_particles_arrays = create_particle_array(x_number_of_particels); //creates the array filled with particles
+
+	unsigned int number_of_particels = 2500; //defines the number of particles
+	Particle* ptr_for_particles_array = create_particle_array(number_of_particels); //creates the array filled with particles
 	
 
 	while (window.isOpen())
@@ -255,28 +239,26 @@ int main()
 		}
 
 		
-		for (unsigned int i = 0; i < x_number_of_particels; i++) {
-			for (unsigned int j = 0; j < x_number_of_particels; j++) {
-				ptr_for_particles_arrays[i][j].rebound();
-				ptr_for_particles_arrays[i][j].Earth_Gravity();
-				ptr_for_particles_arrays[i][j].recolour();
-				ptr_for_particles_arrays[i][j].move();
-				ptr_for_particles_arrays[i][j].Earth_Gravity();
+		for (unsigned int i = 0; i < number_of_particels; i++) {
+			Particle* ptr = &(ptr_for_particles_array[i]);
+			(*ptr).rebound();
+			(*ptr).Earth_Gravity();
+			(*ptr).recolour();
+			(*ptr).move();
+			(*ptr).Earth_Gravity();
 
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_arrays[i][j], &window); //attraction to the cursor when pressing the lmb
-				else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(ptr_for_particles_arrays[i][j], &window); //repulsion from the cursor when pressing the rmb
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) add_impusle(ptr_for_particles_arrays[i][j]);
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click((*ptr), window_pointer); //attraction to the cursor when pressing the lmb
+			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click((*ptr), window_pointer); //repulsion from the cursor when pressing the rmb
 
-				
-				window.draw(ptr_for_particles_arrays[i][j].GetCircle());
-			}
+
+			window.draw((*ptr).GetCircle());
 		}
 		
 		window.display();
 		window.clear();
-		sleep(50);
+		sleep(100);
 		
 	}
-	delete_particle_array(ptr_for_particles_arrays, x_number_of_particels); //clears memory
+	delete[] ptr_for_particles_array; //clears memory
 	return 0;
 }
