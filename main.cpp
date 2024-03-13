@@ -225,7 +225,7 @@ int main()
 	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
 
 
-	unsigned int number_of_particels = 2500; //defines the number of particles
+	unsigned int number_of_particels = 2300; //defines the number of particles
 	Particle* ptr_for_particles_array = create_particle_array(number_of_particels); //creates the array filled with particles
 	
 
