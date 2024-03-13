@@ -182,14 +182,8 @@ void right_mouse_click(Particle& A, const sf::RenderWindow* window_ptr) {
 	if (length > 300) return;
 	direction = (sf::Vector2f)(direction * 100.0f / (length * length));
 
-	double vx = A.GetVx();
-	double vy = A.GetVy();
-
-	vx -= 0.3 * direction.x;
-	vy -= 0.3 * direction.y;
-
-	A.SetVx(vx);
-	A.SetVy(vy);
+	A.SetVx(A.GetVx() - 0.3 * direction.x);
+	A.SetVy(A.GetVy() - 0.3 * direction.y);
 }
 
 
@@ -224,7 +218,7 @@ int main()
 	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
 
 
-	unsigned int number_of_particels = 2300; //defines the number of particles
+	unsigned int number_of_particels = 2000; //defines the number of particles
 	Particle* ptr_for_particles_array = create_particle_array(number_of_particels); //creates the array filled with particles
 	
 
