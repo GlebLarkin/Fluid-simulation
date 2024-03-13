@@ -20,8 +20,8 @@ unsigned int getScreenHeight() //
 
 
 
-const float PI = 3.14; //pi 
-const float g = 0.10; //acceleration of free fall
+const double PI = 3.14; //pi 
+const double g = 0.10; //acceleration of free fall
 const unsigned int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
 const unsigned int boundX = getScreenWidth(); //size of the sfml window
 const unsigned int boundY = getScreenHeight();
@@ -30,7 +30,7 @@ const float Radius_of_Interaction = 1; //the radius of the area of interaction o
 
 
 
-long double Find_Distance(const double x1, const double y1, const double x2, const double y2) { //find the distance between the centers of two particles
+double Find_Distance(const double x1, const double y1, const double x2, const double y2) { //find the distance between the centers of two particles
 	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
@@ -67,12 +67,12 @@ public:
 		circle.setRadius(r);
 	}
 
-	Particle() : Particle((unsigned int)boundX / 2, (unsigned int)boundY / 2) {} //creates a blue particle with coord boundX / 2::boundY / 2
+	Particle() : Particle((float)boundX / 2, (float)boundY / 2) {} //creates a blue particle with coord boundX / 2::boundY / 2
 
-	double GetX() const { return this->circle.getPosition().x; } //coord getters and setters
-	double GetY() const { return this->circle.getPosition().y; }
-	void SetX(const double x_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x_, y); }
-	void SetY(const double y_) { double x = GetX(); double y = GetY(); this->circle.setPosition(x, y_); }
+	float GetX() const { return this->circle.getPosition().x; } //coord getters and setters
+	float GetY() const { return this->circle.getPosition().y; }
+	void SetX(const float x_) { float x = GetX(); float y = GetY(); this->circle.setPosition(x_, y); }
+	void SetY(const float y_) { float x = GetX(); float y = GetY(); this->circle.setPosition(x, y_); }
 
 	double GetVx() const { return this->vx; } //vertice getters and setters
 	double GetVy() const { return this->vy; }
@@ -92,9 +92,9 @@ public:
 	}
 
 	void move() {  //particle movenment
-		double x = GetX();
-		double y = GetY();
-		this->circle.setPosition(x += vx, y += vy);
+		float x = GetX();
+		float y = GetY();
+		this->circle.setPosition(x += (float)vx, y += (float)vy);
 	}
 
 
@@ -109,16 +109,16 @@ public:
 				this->SetVx(this->GetVx() * 0.97);
 			//if (abs(this->GetVx()) <= 0.1) this->SetVx(0); //if the velocity is too low, the particle stops
 		}
-		if (this->GetX() > boundX - 15) {
-			this->SetX(boundX - 15);
+		if (this->GetX() > (float)(boundX - 15)) {
+			this->SetX((float)(boundX - 15));
 			this->SetVx(-this->GetVx() * 0.7);
 		}
 		else if (this->GetX() < 0) {
 			this->SetX(0);
 			this->SetVx(-this->GetVx() * 0.7);
 		}
-		if (this->GetY() > boundY - 17) {
-			this->SetY(boundY - 17);
+		if (this->GetY() > (float)(boundY - 17)) {
+			this->SetY((float)(boundY - 17));
 			this->SetVy(-this->GetVy() * 0.7);
 			if (abs(this->GetVy()) <= 0.2) this->SetVy(0); //if the velocity is too low, the particle stops
 		}
@@ -158,13 +158,14 @@ void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr) {
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
 	//we choose the second one, because we want to interact more with close particles
-
-	if (boundY - A.GetY() <= 17) { A.SetVy(-0.5); A.SetY(boundY - 17); return; } //this fixes sticking to the floor
-
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 	if (length > 300) return;
+
+	if ((float)boundY - A.GetY() <= 17) { A.SetVy(-0.5); A.SetY((float)boundY - 17); return; } //this fixes sticking to the floor
+
+	
 	//direction /= (length / 0.4);
 	direction = (sf::Vector2f)(direction * 100.0f / (length * length));
 
@@ -202,8 +203,8 @@ Particle* create_particle_array(const unsigned int number_of_particels) {
 	Particle* ptr_for_particles_array = new Particle [number_of_particels];
 
 	for (unsigned int i = 0; i < number_of_particels; i++) {
-		ptr_for_particles_array[i].SetX(boundX * generateRandomNumber()); //every particle from the array has random coord
-		ptr_for_particles_array[i].SetY(boundY * generateRandomNumber());
+		ptr_for_particles_array[i].SetX((float)(boundX * generateRandomNumber())); //every particle from the array has random coord
+		ptr_for_particles_array[i].SetY((float)(boundY * generateRandomNumber()));
 	}
 	return ptr_for_particles_array;
 }
@@ -217,8 +218,8 @@ int main()
 	sf::RenderWindow window(desktop, "Fluid simulation", sf::Style::Fullscreen);
 	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
 
-
 	unsigned int number_of_particels = 2000; //defines the number of particles
+
 	Particle* ptr_for_particles_array = create_particle_array(number_of_particels); //creates the array filled with particles
 	
 
