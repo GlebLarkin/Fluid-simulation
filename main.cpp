@@ -5,7 +5,6 @@
 #include <iostream>
 #include <random>
 
-using namespace sf;
 
 unsigned int getScreenWidth() //returns screen size
 {
@@ -155,7 +154,7 @@ void Molecular_Interaction(Particle A, Particle B) { //interaction between parti
 }
 
 
-void left_mouse_click(Particle& A, const RenderWindow* window_ptr) {
+void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr) {
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
 	//we choose the second one, because we want to interact more with close particles
@@ -167,7 +166,7 @@ void left_mouse_click(Particle& A, const RenderWindow* window_ptr) {
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 	if (length > 300) return;
 	//direction /= (length / 0.4);
-	direction = (Vector2f)(direction * 100.0f / (length * length));
+	direction = (sf::Vector2f)(direction * 100.0f / (length * length));
 
 	if (length < 40) return; //depending on the square of the length, the particles should not approach the cursor too much
 
@@ -175,13 +174,13 @@ void left_mouse_click(Particle& A, const RenderWindow* window_ptr) {
 	A.SetVy(A.GetVy() + direction.y);
 }
 
-void right_mouse_click(Particle& A, const RenderWindow* window_ptr) {
+void right_mouse_click(Particle& A, const sf::RenderWindow* window_ptr) {
 	//we relize repulsion from the cursor when the mouse is clicked(rmb)
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 	if (length > 300) return;
-	direction = (Vector2f)(direction * 100.0f / (length * length));
+	direction = (sf::Vector2f)(direction * 100.0f / (length * length));
 
 	double vx = A.GetVx();
 	double vy = A.GetVy();
@@ -240,7 +239,7 @@ int main()
 
 		
 		for (unsigned int i = 0; i < number_of_particels; i++) {
-			Particle* ptr = &(ptr_for_particles_array[i]);
+			Particle* ptr = &(ptr_for_particles_array[i]); //we precalculate it for more speed 
 			(*ptr).rebound();
 			(*ptr).Earth_Gravity();
 			(*ptr).recolour();
