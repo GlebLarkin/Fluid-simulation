@@ -21,7 +21,7 @@ unsigned int getScreenHeight() //
 
 
 const double PI = 3.14; //pi 
-const double g = 0.10; //acceleration of free fall
+const double g = 0.050; //acceleration of free fall
 const unsigned int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
 const unsigned int boundX = getScreenWidth(); //size of the sfml window
 const unsigned int boundY = getScreenHeight();
@@ -34,11 +34,6 @@ double Find_Distance(const double x1, const double y1, const double x2, const do
 	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
-
-void sleep(unsigned int mc) {
-	//delay for ms microseconds
-	std::this_thread::sleep_for(std::chrono::microseconds(mc));
-}
 
 
 class Particle
@@ -195,7 +190,7 @@ double generateRandomNumber() {
 	std::mt19937 random_number(rd());
 	std::uniform_real_distribution<double> dis(0.0, 1.0);
 
-	return dis(random_number); // Генерируем и возвращаем случайное число от 0 до 1
+	return dis(random_number); // We generate and return a random number from 0 to 1
 }
 
 Particle* create_particle_array(const unsigned int number_of_particels) {
@@ -218,11 +213,13 @@ int main()
 	sf::RenderWindow window(desktop, "Fluid simulation", sf::Style::Fullscreen);
 	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
 
+	window.setFramerateLimit(80);
+
 	unsigned int number_of_particels = 2000; //defines the number of particles
-
-	Particle* ptr_for_particles_array = create_particle_array(number_of_particels); //creates the array filled with particles
 	
+	Particle* ptr_for_particles_array = create_particle_array(number_of_particels); //creates the array filled with particles
 
+	
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -234,25 +231,25 @@ int main()
 
 		
 		for (unsigned int i = 0; i < number_of_particels; i++) {
-			Particle* ptr = &(ptr_for_particles_array[i]); //we precalculate it for more speed 
-			(*ptr).rebound();
-			(*ptr).Earth_Gravity();
-			(*ptr).recolour();
-			(*ptr).move();
-			(*ptr).Earth_Gravity();
+			ptr_for_particles_array[i].rebound();
+			ptr_for_particles_array[i].Earth_Gravity();
+			ptr_for_particles_array[i].recolour();
+			ptr_for_particles_array[i].move();
+			ptr_for_particles_array[i].Earth_Gravity();
 
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click((*ptr), window_pointer); //attraction to the cursor when pressing the lmb
-			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click((*ptr), window_pointer); //repulsion from the cursor when pressing the rmb
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_array[i], window_pointer); //attraction to the cursor when pressing the lmb
+			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(ptr_for_particles_array[i], window_pointer); //repulsion from the cursor when pressing the rmb
 
-
-			window.draw((*ptr).GetCircle());
+			
+			window.draw((ptr_for_particles_array[i]).GetCircle());
 		}
 		
 		window.display();
 		window.clear();
-		sleep(100);
 		
 	}
+	window.display();
+
 	delete[] ptr_for_particles_array; //clears memory
 	return 0;
 }
