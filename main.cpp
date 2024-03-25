@@ -4,6 +4,7 @@
 #include <thread>
 #include <iostream>
 #include <random>
+#include <vector>
 
 
 unsigned int getScreenWidth() //returns screen size
@@ -12,7 +13,7 @@ unsigned int getScreenWidth() //returns screen size
 	return desktop.width;
 }
 
-unsigned int getScreenHeight() //
+unsigned int getScreenHeight()
 {
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 	return desktop.height;
@@ -27,12 +28,9 @@ const unsigned int boundX = getScreenWidth(); //size of the sfml window
 const unsigned int boundY = getScreenHeight();
 const float r = 10; //radius of a circle of a particle
 const float Radius_of_Interaction = 1; //the radius of the area of interaction of this particle with the rest
+const float a = 1; //offset 1/x^2 along the x and y axes in the Gradient_of_Interaction method
+const float alpha = 1; //the coefficient of stretching is 1 / x ^ 2 in the Gradient_of_Interaction method
 
-
-
-double Find_Distance(const double x1, const double y1, const double x2, const double y2) { //find the distance between the centers of two particles
-	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-}
 
 
 
@@ -47,12 +45,6 @@ private:
 	double vx = 0; //velocity
 	double vy = 0;
 	const int mass = 1; //the mass that is concentrated in the center
-
-	//===================================================================================//
-	const float a = 1; //offset 1/x^2 along the x and y axes in the Gradient_of_Interaction method
-	const float alpha = 1; //the coefficient of stretching is 1 / x ^ 2 in the Gradient_of_Interaction method
-	//===================================================================================//
-
 public:
 	
 	Particle(float x_, float y_) { //creates a blue particle with coord x::y
@@ -75,16 +67,6 @@ public:
 	void SetVy(const double vy_) { this->vy = vy_; }
 
 	void Earth_Gravity() { this->vy += g; } //its really gravity, makes the particle fall faster
-
-	double Gradient_of_Interaction(Particle A) {
-		//calculates the value of the "field" of a given particle at the point of another particle A with the coord x::y
-		//returns 0 if the particle is outside the interaction radius, the value of the "gradient" otherwise
-		//the magnitude of the "gradient" depends on the coordinate as 1/x^2, and the hyperbola is shifted to the right by a constant a on the x axis, down by a on the y axis and stretched alpha times
-		//ro - the distance from this particle to particle A
-		double ro = Find_Distance(A.GetX(), A.GetY(), this->GetX(), this->GetY());
-		if (ro >= Radius_of_Interaction) return 0;
-		return (alpha / ((ro + a) * (ro + a)) - a);
-	}
 
 	void move() {  //particle movenment
 		float x = GetX();
@@ -141,12 +123,10 @@ public:
 };
 
 
-
-void Molecular_Interaction(Particle A, Particle B) { //interaction between particles
-	//THEN HERE WILL BE A GRADIENT MAP AND HASHING
-	//============ FINISH WRITING ===============//
-	std::cout << "The molecular interaction works!" << std::endl;
+void sleep(int sec) {
+	std::this_thread::sleep_for(std::chrono::seconds(sec));
 }
+
 
 
 void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr) {
@@ -205,27 +185,164 @@ Particle* create_particle_array(const unsigned int number_of_particels) {
 }
 
 
+class Pressure_map_cell
+//the pressure map consists of such cells
+{
+private:
+	sf::Vector2f coord; // Coordinates of the cell
+	double pressure; // Pressure value of the cell
+
+public:
+	// Constructor to initialize the cell with given coordinates and default pressure of 0
+	Pressure_map_cell()
+	{
+		this->coord.x = 0;
+		this->coord.y = 0;
+		this->pressure = 0;
+	}
+
+	// Getter methods
+	sf::Vector2f GetCoord() { return this->coord; }
+	double GetPressure() { return this->pressure; }
+
+	// Setter methods
+	void SetCoord(float x_, float y_) { this->coord.x = x_; this->coord.y = y_; }
+	void SetPressure(double pressure_) { this->pressure = pressure_; }
+};
+
+class Pressure_map
+//the map is used for calculation pressure forse acting on a particle
+//P.S. my dear reader, im so sorry for this shit, forgive me pls
+//we gonna change Find_i_cell_number_j func for hash maps, they definitly should work faster
+{
+private:
+	sf::Vector2<unsigned int> number_of_cells; // Number of cells in the pressure map
+	sf::Vector2<unsigned int> size_of_cell; // Size of each cell in pixels
+	Pressure_map_cell** ptr_for_pressure_map; //pointer to the map
+
+public:
+	// Constructor to initialize the pressure map with given dimensions
+	Pressure_map(unsigned int x_, unsigned int y_)
+	{
+		number_of_cells.x = x_;
+		number_of_cells.y = y_;
+		size_of_cell.x = boundX / number_of_cells.x; // Calculate size of cell in x-direction
+		size_of_cell.y = boundY / number_of_cells.y; // Calculate size of cell in y-direction
+
+		// Dynamically allocate memory for the pressure map cells
+		ptr_for_pressure_map = new Pressure_map_cell * [number_of_cells.x];
+		for (unsigned int i = 0; i < number_of_cells.x; i++)
+		{
+			ptr_for_pressure_map[i] = new Pressure_map_cell[number_of_cells.y];
+			for (unsigned int j = 0; j < number_of_cells.y; j++)
+			{
+				// Set coordinates for each cell based on its position in the grid
+				ptr_for_pressure_map[i][j].SetCoord((float)i * size_of_cell.x, (float)j * number_of_cells.y);
+			}
+		}
+	}
+
+	//Clears memory
+	~Pressure_map()
+	{
+		for (unsigned i = 0; i < number_of_cells.x; i++) { delete[] ptr_for_pressure_map[i]; }
+		delete[] ptr_for_pressure_map;
+		ptr_for_pressure_map = nullptr;
+	}
+
+	double Find_particles_pressure(Particle A, Pressure_map_cell cell) {
+		//calculates the value of the "pressure" of a given particle at the point of another particle A with the coord x::y
+		//returns the value of the "pressure"
+		//the magnitude of the "gradient" depends on the coordinate as 1/x^2, and the hyperbola is shifted to the right by a constant a on the x axis, down by a on the y axis and stretched alpha times
+		//ro - the distance from this particle to particle A
+		double x1 = A.GetX();
+		double y1 = A.GetY();
+		double x2 = cell.GetCoord().x;
+		double y2 = cell.GetCoord().y;
+		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+		if (ro > Radius_of_Interaction) { return 0; }
+		return (alpha / ((ro + a) * (ro + a)) - a);
+	}
+	unsigned int Find_first_cell_number_x(Particle A)
+	{
+		if (Radius_of_Interaction > A.GetX()) { return 0; }
+		return (unsigned int)(A.GetX() - Radius_of_Interaction) / size_of_cell.x;
+	}
+	unsigned int Find_first_cell_number_y(Particle A)
+	{
+		if (Radius_of_Interaction > A.GetY()) { return 0; }
+		return (unsigned int)(A.GetY() - Radius_of_Interaction) / size_of_cell.y;
+	}
+	unsigned int Find_last_cell_number_x(Particle A)
+	{
+		if (Radius_of_Interaction + A.GetX() > boundX) { return number_of_cells.x; }
+		return (unsigned int)(A.GetX() + Radius_of_Interaction) / size_of_cell.x;
+	}
+	unsigned int Find_last_cell_number_y(Particle A)
+	{
+		if (Radius_of_Interaction + A.GetY() > boundY) { return number_of_cells.y; }
+		return (unsigned int)(A.GetY() + Radius_of_Interaction) / size_of_cell.y;
+	}
+
+	void Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels)
+	{
+		for (unsigned i = 0; i < number_of_particels; i++) 
+		{
+			Particle A = ptr_for_particles_array[i]; //we precalculate it for more speed
+			for (unsigned j = Find_first_cell_number_x(A); j < Find_last_cell_number_x(A); j++)
+			{
+				for (unsigned k = Find_first_cell_number_y(A); k < Find_last_cell_number_y(A); k++)
+				{
+					double delta_pressure = Find_particles_pressure(A, ptr_for_pressure_map[j][k]);
+					ptr_for_pressure_map[j][k].SetPressure(ptr_for_pressure_map[j][k].GetPressure() + delta_pressure);
+				}
+			}
+		}
+		
+	}
+};
 
 
 int main()
 {
-	sf::VideoMode desktop = sf::VideoMode::getDesktopMode(); //sfml window is fullscreen
-	sf::RenderWindow window(desktop, "Fluid simulation", sf::Style::Fullscreen);
+	sf::RenderWindow window;
+	std::cout << "if you have linux os of windows os, enter 0, if you have mac os or smth else, enter 1:" << std::endl;
+	bool os_type;
+	std::cin >> os_type;
+	if (os_type){ std::cout << "mac sucks" << std::endl; }
+	
+
+	std::cout << "enter number of particles (1 000-10 000 recommended):" << std::endl;
+	unsigned int number_of_particels; //defines the number of particles
+	std::cin >> number_of_particels;
+
+	std::cout << "fluid simulation will start in 4 seconds. If you want to close it, press ESC or press the red cross" << std::endl;
+	sleep(4);
+
+
+	if (!os_type) 
+	{
+		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+		window.create(desktop, "Fluid simulation", sf::Style::Fullscreen); //fullscreen for windows and linux
+	}
+	else 
+	{
+		window.create(sf::VideoMode(boundX, boundY), "Fluid simulation"); //bullshit for mac
+	}
+
+	
 	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
 
 	window.setFramerateLimit(80);
-
-	unsigned int number_of_particels = 2000; //defines the number of particles
 	
 	Particle* ptr_for_particles_array = create_particle_array(number_of_particels); //creates the array filled with particles
 
-	
 	while (window.isOpen())
 	{
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape || event.type == sf::Event::Closed)
 				window.close();
 		}
 
