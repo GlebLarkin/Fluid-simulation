@@ -7,25 +7,12 @@
 #include <vector>
 
 
-unsigned int getScreenWidth() //returns screen size
-{
-	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-	return desktop.width;
-}
-
-unsigned int getScreenHeight()
-{
-	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-	return desktop.height;
-}
-
-
 
 const double PI = 3.14; //pi 
 const double g = 0.050; //acceleration of free fall
 const unsigned int coef = 1; //the coefficient of proportionality between the repulsive force and the masses of particles divided by the distance between them
-const unsigned int boundX = getScreenWidth(); //size of the sfml window
-const unsigned int boundY = getScreenHeight();
+unsigned int boundX; //size of the sfml window
+unsigned int boundY;
 const float r = 10; //radius of a circle of a particle
 const float Radius_of_Interaction = 1; //the radius of the area of interaction of this particle with the rest
 const float a = 1; //offset 1/x^2 along the x and y axes in the Gradient_of_Interaction method
@@ -119,13 +106,30 @@ public:
 		this->circle.setFillColor(circleColor);
 	}
 
-
+	/////////////////////////////////////////////////////////////////////////////////////////////////
+	/*void repulsion(Pressure_map_cell**)
+	{
+		sf::Vector2<unsigned int> this_cell_number = find_cell_number(this->GetX(), this->GetY());
+	}
+	*/
+	////////////////////////////////////////////////////////////////////////////////////////////////
 };
 
 
-void sleep(int sec) {
-	std::this_thread::sleep_for(std::chrono::seconds(sec));
+
+unsigned int getScreenWidth() //returns screen size
+{
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+	return desktop.width;
 }
+
+unsigned int getScreenHeight()
+{
+	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+	return desktop.height;
+}
+
+void sleep(int sec) { std::this_thread::sleep_for(std::chrono::seconds(sec)); }//delay for sec seconds
 
 
 
@@ -189,11 +193,11 @@ class Pressure_map_cell
 //the pressure map consists of such cells
 {
 private:
-	sf::Vector2f coord; // Coordinates of the cell
+	sf::Vector2f coord; // Coordinates of the cell(its upper left corner coord in pixels)
 	double pressure; // Pressure value of the cell
 
 public:
-	// Constructor to initialize the cell with given coordinates and default pressure of 0
+	// Constructor to initialize the cell with 0:0 coordinates and default pressure of 0
 	Pressure_map_cell()
 	{
 		this->coord.x = 0;
@@ -213,12 +217,32 @@ public:
 class Pressure_map
 //the map is used for calculation pressure forse acting on a particle
 //P.S. my dear reader, im so sorry for this shit, forgive me pls
-//we gonna change Find_i_cell_number_j func for hash maps, they definitly should work faster
 {
 private:
 	sf::Vector2<unsigned int> number_of_cells; // Number of cells in the pressure map
 	sf::Vector2<unsigned int> size_of_cell; // Size of each cell in pixels
 	Pressure_map_cell** ptr_for_pressure_map; //pointer to the map
+
+	unsigned int Find_first_cell_number_x(Particle A) //all the private functions below are needed to calculate the number of the cell with given coords
+	{
+		if (Radius_of_Interaction > A.GetX()) { return 0; }
+		return (unsigned int)(A.GetX() - Radius_of_Interaction) / size_of_cell.x;
+	}
+	unsigned int Find_first_cell_number_y(Particle A)
+	{
+		if (Radius_of_Interaction > A.GetY()) { return 0; }
+		return (unsigned int)(A.GetY() - Radius_of_Interaction) / size_of_cell.y;
+	}
+	unsigned int Find_last_cell_number_x(Particle A)
+	{
+		if (Radius_of_Interaction + A.GetX() > boundX) { return number_of_cells.x; }
+		return (unsigned int)(A.GetX() + Radius_of_Interaction) / size_of_cell.x;
+	}
+	unsigned int Find_last_cell_number_y(Particle A)
+	{
+		if (Radius_of_Interaction + A.GetY() > boundY) { return number_of_cells.y; }
+		return (unsigned int)(A.GetY() + Radius_of_Interaction) / size_of_cell.y;
+	}
 
 public:
 	// Constructor to initialize the pressure map with given dimensions
@@ -252,39 +276,20 @@ public:
 
 	double Find_particles_pressure(Particle A, Pressure_map_cell cell) {
 		//calculates the value of the "pressure" of a given particle at the point of another particle A with the coord x::y
-		//returns the value of the "pressure"
+		//returns either the value of the "pressure" if the cell is in radius of interraction or zero if it isnt
 		//the magnitude of the "gradient" depends on the coordinate as 1/x^2, and the hyperbola is shifted to the right by a constant a on the x axis, down by a on the y axis and stretched alpha times
 		//ro - the distance from this particle to particle A
-		double x1 = A.GetX();
+		double x1 = A.GetX(); //just for better readability
 		double y1 = A.GetY();
 		double x2 = cell.GetCoord().x;
 		double y2 = cell.GetCoord().y;
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 		if (ro > Radius_of_Interaction) { return 0; }
-		return (alpha / ((ro + a) * (ro + a)) - a);
-	}
-	unsigned int Find_first_cell_number_x(Particle A)
-	{
-		if (Radius_of_Interaction > A.GetX()) { return 0; }
-		return (unsigned int)(A.GetX() - Radius_of_Interaction) / size_of_cell.x;
-	}
-	unsigned int Find_first_cell_number_y(Particle A)
-	{
-		if (Radius_of_Interaction > A.GetY()) { return 0; }
-		return (unsigned int)(A.GetY() - Radius_of_Interaction) / size_of_cell.y;
-	}
-	unsigned int Find_last_cell_number_x(Particle A)
-	{
-		if (Radius_of_Interaction + A.GetX() > boundX) { return number_of_cells.x; }
-		return (unsigned int)(A.GetX() + Radius_of_Interaction) / size_of_cell.x;
-	}
-	unsigned int Find_last_cell_number_y(Particle A)
-	{
-		if (Radius_of_Interaction + A.GetY() > boundY) { return number_of_cells.y; }
-		return (unsigned int)(A.GetY() + Radius_of_Interaction) / size_of_cell.y;
+		return (alpha / ((ro + a) * (ro + a)) - a); //this is a hyperbola shifted down and to the left
 	}
 
 	void Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels)
+	//calculates pressure in every cell of the pressure map
 	{
 		for (unsigned i = 0; i < number_of_particels; i++) 
 		{
@@ -298,8 +303,19 @@ public:
 				}
 			}
 		}
-		
 	}
+
+	Pressure_map_cell** get_pressure_map_ptr() { return ptr_for_pressure_map; } //returns pointer for pressure map
+
+	sf::Vector2<unsigned int> find_this_cell_number(float x_, float y_) //returns a cell number situated on x_:y_ coords
+	{
+		sf::Vector2<unsigned int> a;
+		a.x = (unsigned int)(x_ / number_of_cells.x);
+		a.y = (unsigned int)(y_ / number_of_cells.y);
+		return a;
+	}
+
+	sf::Vector2<unsigned int> number_of_cells() { return number_of_cells; } //returns number of cells in the pressure map
 };
 
 
@@ -322,11 +338,15 @@ int main()
 
 	if (!os_type) 
 	{
+		boundX = getScreenWidth();
+		boundY = getScreenHeight();
 		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 		window.create(desktop, "Fluid simulation", sf::Style::Fullscreen); //fullscreen for windows and linux
 	}
 	else 
 	{
+		boundX = 1200;
+		boundY = 800;
 		window.create(sf::VideoMode(boundX, boundY), "Fluid simulation"); //bullshit for mac
 	}
 
