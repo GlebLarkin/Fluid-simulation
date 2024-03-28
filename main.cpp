@@ -106,13 +106,27 @@ public:
 		this->circle.setFillColor(circleColor);
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	/*void repulsion(Pressure_map_cell**)
+	/*void repulsion(Pressure_map_cell** ptr)
 	{
-		sf::Vector2<unsigned int> this_cell_number = find_cell_number(this->GetX(), this->GetY());
-	}
-	*/
-	////////////////////////////////////////////////////////////////////////////////////////////////
+		sf::Vector2<unsigned int> cell_number = find_cell_number(this->GetX(), this->GetY());
+		sf::Vector2<unsigned int> num = get_number_of_cells();
+		if (cell_number.x != 0 and cell_number.y != 0 and cell_number.x != num.y - 1 and cell_number.y != num.y - 1) 
+		{
+			vx += (ptr[cell_number.x + 1][cell_number.y].GetPressure() - ptr[cell_number.x - 1][cell_number.y].GetPressure());
+			vy += (ptr[cell_number.x][cell_number.y + 1].GetPressure() - ptr[cell_number.x][cell_number.y - 1].GetPressure());
+		}
+		else
+		{
+			if ((cell_number.y == 0 and cell_number.x != 0 and cell_number.x != num.x - 1) or (cell_number.y == num.y - 1 and cell_number.x != 0 and cell_number.x != num.x - 1))
+			{
+				vx += (ptr[cell_number.x + 1][cell_number.y].GetPressure() - ptr[cell_number.x - 1][cell_number.y].GetPressure());
+			}
+			if ((cell_number.x == 0 and cell_number.y != 0 and cell_number.y != num.y - 1) or (cell_number.x == num.x - 1 and cell_number.y != 0 and cell_number.y != num.y - 1))
+			{
+				vy += (ptr[cell_number.x][cell_number.y + 1].GetPressure() - ptr[cell_number.x][cell_number.y - 1].GetPressure());
+			}
+			}
+	}*/
 };
 
 
@@ -315,7 +329,7 @@ public:
 		return a;
 	}
 
-	sf::Vector2<unsigned int> number_of_cells() { return number_of_cells; } //returns number of cells in the pressure map
+	sf::Vector2<unsigned int> get_number_of_cells() { return number_of_cells; } //returns number of cells in the pressure map
 };
 
 
