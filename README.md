@@ -26,11 +26,13 @@
 
 //Далее readme будет дополняться.
 
-English version(using chat gpt):
+English version:
 # Fluid simulation using SPH particles
 
 ## Project Description
 This project is a simulation of fluid using the Smoothed Particle Hydrodynamics (SPH) method. The main components of the SPH algorithm will be implemented for modeling fluid behavior in this project. It is worth noting that at the time of writing this readme, we are simulating fluid in 2D.
+
+We are currently using SFML for visualization purposes, but we are considering exploring other options due to some limitations and regrets associated with SFML.
 
 Planned Tasks:
 1. Implement the Particle class (done)
