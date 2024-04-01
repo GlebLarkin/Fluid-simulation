@@ -1,0 +1,11 @@
+
+{
+  "g": 0.050, 
+  "coef": 1,
+  "boundX": 1200,
+  "boundY": 800,
+  "r": 10, 
+  "Radius_of_Interaction" : 1,
+  "a": 1,
+  "alpha": 1
+}
