@@ -7,6 +7,23 @@ class Pressure_map
 //the map is used for calculation pressure forse acting on a particle
 //P.S. my dear reader, im so sorry for this shit, forgive me pls
 {
+public:
+	// Constructor to initialize the pressure map with given dimensions
+	Pressure_map(unsigned int x_, unsigned int y_);
+
+	//Clears memory
+	~Pressure_map();
+
+	double Find_particles_pressure(Particle A, Pressure_map_cell cell);
+
+	void Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels);
+
+	Pressure_map_cell** get_pressure_map_ptr(); //returns pointer for pressure map
+
+	sf::Vector2<unsigned int> find_this_cell_number(float x_, float y_);
+
+	sf::Vector2<unsigned int> get_number_of_cells(); //returns number of cells in the pressure map
+
 private:
 	sf::Vector2<unsigned int> number_of_cells; // Number of cells in the pressure map
 	sf::Vector2<unsigned int> size_of_cell; // Size of each cell in pixels
@@ -32,23 +49,6 @@ private:
 		if (Radius_of_Interaction + A.GetY() > boundY) { return number_of_cells.y; }
 		return (unsigned int)(A.GetY() + Radius_of_Interaction) / size_of_cell.y;
 	}
-
-public:
-	// Constructor to initialize the pressure map with given dimensions
-	Pressure_map(unsigned int x_, unsigned int y_);
-
-	//Clears memory
-	~Pressure_map();
-
-	double Find_particles_pressure(Particle A, Pressure_map_cell cell);
-
-	void Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels);
-
-	Pressure_map_cell** get_pressure_map_ptr(); //returns pointer for pressure map
-
-	sf::Vector2<unsigned int> find_this_cell_number(float x_, float y_);
-
-	sf::Vector2<unsigned int> get_number_of_cells(); //returns number of cells in the pressure map
 };
 
 #endif  // FLUID_PRESSURE_MAP_HPP_

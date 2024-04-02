@@ -6,10 +6,6 @@
 class Pressure_map_cell
 //the pressure map consists of such cells
 {
-private:
-	sf::Vector2f coord; // Coordinates of the cell(its upper left corner coord in pixels)
-	double pressure; // Pressure value of the cell
-
 public:
 	// Constructor to initialize the cell with 0:0 coordinates and default pressure of 0
 	Pressure_map_cell()
@@ -26,6 +22,9 @@ public:
 	// Setter methods
 	void SetCoord(float x_, float y_);
 	void SetPressure(double pressure_);
+private:
+	sf::Vector2f coord; // Coordinates of the cell(its upper left corner coord in pixels)
+	double pressure; // Pressure value of the cell
 };
 
 #endif  // FLUID_PRESSURE_MAP_CELL_HPP_

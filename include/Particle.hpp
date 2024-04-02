@@ -2,7 +2,6 @@
 #define FLUID_PARTICLE_HPP_
 
 #include <SFML/Graphics.hpp>
-
 #include <Class.hpp>
 
 
@@ -11,12 +10,6 @@ class Particle
 	//the particle is able to attract to the earth, repel other particles and has viscosity
 	//it lives in two-dimensional space
 {
-
-private:
-	sf::CircleShape circle; //every particle is shown by the circle
-	double vx = 0; //velocity
-	double vy = 0;
-	const int mass = 1; //the mass that is concentrated in the center
 public:
 	
 	Particle(float x_, float y_) { //creates a blue particle with coord x::y
@@ -75,6 +68,11 @@ public:
 			}
 			}
 	}*/
+private:
+	sf::CircleShape circle; //every particle is shown by the circle
+	double vx = 0; //velocity
+	double vy = 0;
+	const int mass = 1; //the mass that is concentrated in the center
 };
 
 #endif  // FLUID_PARTICLE_HPP_

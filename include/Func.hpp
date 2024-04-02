@@ -3,7 +3,6 @@
 
 #include <thread>
 #include <random>
-
 #include <Particle.hpp>
 
 unsigned int getScreenWidth(); //returns screen size
