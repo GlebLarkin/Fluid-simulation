@@ -1,5 +1,8 @@
-#pragma once
+#ifndef FLUID_CLASS_HPP_
+#define FLUID_CLASS_HPP_
 
+#include <cmath>
+/*
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <chrono>
@@ -8,7 +11,6 @@
 #include <random>
 #include <vector>
 
-/*
 #include <nlohmann_json/json_fwd.hpp>
 #include <nlohmann_json/json.hpp>
 
@@ -42,3 +44,5 @@ static const float Radius_of_Interaction = config["Radius_of_Interaction"]; //th
 static const float a = config["a"]; //offset 1/x^2 along the x and y axes in the Gradient_of_Interaction method
 static const float alpha = config["alpha"]; //the coefficient of stretching is 1 / x ^ 2 in the Gradient_of_Interaction method
 */
+
+#endif  // FLUID_CLASS_HPP_

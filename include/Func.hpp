@@ -1,4 +1,8 @@
-#pragma once
+#ifndef FLUID_FUNC_HPP_
+#define FLUID_FUNC_HPP_
+
+#include <thread>
+#include <random>
 
 #include <Particle.hpp>
 
@@ -25,3 +29,5 @@ double generateRandomNumber(); //generate random number from zero to one
 
 
 Particle* create_particle_array(const unsigned int number_of_particels); //creates array of particles number_of_particels
+
+#endif  // FLUID_FUNC_HPP_

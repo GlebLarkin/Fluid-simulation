@@ -1,4 +1,7 @@
-#pragma once
+#ifndef FLUID_PARTICLE_HPP_
+#define FLUID_PARTICLE_HPP_
+
+#include <SFML/Graphics.hpp>
 
 #include <Class.hpp>
 
@@ -73,3 +76,5 @@ public:
 			}
 	}*/
 };
+
+#endif  // FLUID_PARTICLE_HPP_

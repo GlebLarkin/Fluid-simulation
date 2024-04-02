@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FLUID_PRESSURE_MAP_CELL_HPP_
+#define FLUID_PRESSURE_MAP_CELL_HPP_
 
 #include <Func.hpp>
 
@@ -26,3 +27,5 @@ public:
 	void SetCoord(float x_, float y_);
 	void SetPressure(double pressure_);
 };
+
+#endif  // FLUID_PRESSURE_MAP_CELL_HPP_

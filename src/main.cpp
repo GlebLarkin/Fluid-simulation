@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <Class.hpp>
 #include <Particle.hpp>
 #include <Func.hpp>

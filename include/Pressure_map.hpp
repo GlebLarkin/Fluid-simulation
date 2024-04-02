@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef FLUID_PRESSURE_MAP_HPP_
+#define FLUID_PRESSURE_MAP_HPP_
 
 #include <Pressure_map_cell.hpp>
 
@@ -50,3 +50,5 @@ public:
 
 	sf::Vector2<unsigned int> get_number_of_cells(); //returns number of cells in the pressure map
 };
+
+#endif  // FLUID_PRESSURE_MAP_HPP_

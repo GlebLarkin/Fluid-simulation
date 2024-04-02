@@ -4,7 +4,7 @@
 # compile CXX with /Library/Developer/CommandLineTools/usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/Users/oleg/Desktop/c++/Projects/Fluid-simulation/include -isystem /opt/homebrew/include
+CXX_INCLUDES = -I/Users/oleg/Documents/GitHub/Fluid-simulation/include -isystem /opt/homebrew/include
 
 CXX_FLAGSarm64 = -std=c++17  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk
 
