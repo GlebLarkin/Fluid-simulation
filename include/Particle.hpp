@@ -12,14 +12,14 @@ class Particle
 {
 public:
 	
-	Particle(float x_, float y_) { //creates a blue particle with coord x::y
+	Particle(float x_, float y_, Data d) { //creates a blue particle with coord x::y
 		sf::Color circleColor(100, 255, 127);
 		circle.setFillColor(circleColor);
 		circle.setPosition(x_, y_);
-		circle.setRadius(r);
+		circle.setRadius(d.r);
 	}
 
-	Particle() : Particle((float)boundX / 2, (float)boundY / 2) {} //creates a blue particle with coord boundX / 2::boundY / 2
+	Particle(Data d) : Particle((float)d.boundX / 2, (float)d.boundY / 2, d) {} //creates a blue particle with coord boundX / 2::boundY / 2
 
 	float GetX() const { return this->circle.getPosition().x; } //coord getters and setters
 	float GetY() const { return this->circle.getPosition().y; }
@@ -31,7 +31,7 @@ public:
 	void SetVx(const double vx_) { this->vx = vx_; }
 	void SetVy(const double vy_) { this->vy = vy_; }
 
-	void Earth_Gravity(); //its really gravity, makes the particle fall faster
+	void Earth_Gravity(Data d); //its really gravity, makes the particle fall faster
 
 	void move(); //particle movenment
 
@@ -41,7 +41,7 @@ public:
 
 	sf::CircleShape GetCircle() const; //returns the circle of the particle
 
-	void rebound(); //when a particle hits a wall/floor, it bounces off, losing some of its energy
+	void rebound(Data d); //when a particle hits a wall/floor, it bounces off, losing some of its energy
 
 
 	void recolour(); //the color of the particle depends on its velocity

@@ -1,13 +1,24 @@
 #include <iostream>
+#include <fstream>
 #include <Class.hpp>
 #include <Func.hpp>
 #include <Particle.hpp>
 #include <Pressure_map_cell.hpp>
 #include <Pressure_map.hpp>
+#include "nlohmann_json/json.hpp"
 
 
-int main()
-{
+int main(int argc, char** argv) {
+
+    if (argc != 2) {
+        std::cerr << "Usage: ./FadingTrust config.json\n";
+        std::exit(1);
+    }
+
+    std::ifstream cfg(argv[1]);
+    nlohmann::json config = nlohmann::json::parse(cfg);
+    Data d{config};
+
 	sf::RenderWindow window;
 	std::cout << "if you have linux os of windows os, enter 0, if you have mac os or smth else, enter 1:" << std::endl;
 	bool os_type;
@@ -25,16 +36,16 @@ int main()
 
 	if (!os_type) 
 	{
-		boundX = getScreenWidth();
-		boundY = getScreenHeight();
+		d.boundX = getScreenWidth();
+		d.boundY = getScreenHeight();
 		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 		window.create(desktop, "Fluid simulation", sf::Style::Fullscreen); //fullscreen for windows and linux
 	}
 	else 
 	{
-		boundX = 1200;
-		boundY = 800;
-		window.create(sf::VideoMode(boundX, boundY), "Fluid simulation"); //bullshit for mac
+		d.boundX = 1200;
+		d.boundY = 800;
+		window.create(sf::VideoMode(d.boundX, d.boundY), "Fluid simulation"); //bullshit for mac
 	}
 
 	
@@ -42,7 +53,7 @@ int main()
 
 	window.setFramerateLimit(80);
 	
-	Particle* ptr_for_particles_array = create_particle_array(number_of_particels); //creates the array filled with particles
+	Particle* ptr_for_particles_array = create_particle_array(number_of_particels, d); //creates the array filled with particles
 
 	while (window.isOpen())
 	{
@@ -55,13 +66,13 @@ int main()
 
 		
 		for (unsigned int i = 0; i < number_of_particels; i++) {
-			ptr_for_particles_array[i].rebound();
-			ptr_for_particles_array[i].Earth_Gravity();
+			ptr_for_particles_array[i].rebound(d);
+			ptr_for_particles_array[i].Earth_Gravity(d);
 			ptr_for_particles_array[i].recolour();
 			ptr_for_particles_array[i].move();
-			ptr_for_particles_array[i].Earth_Gravity();
+			ptr_for_particles_array[i].Earth_Gravity(d);
 
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_array[i], window_pointer); //attraction to the cursor when pressing the lmb
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_array[i], window_pointer, d); //attraction to the cursor when pressing the lmb
 			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(ptr_for_particles_array[i], window_pointer); //repulsion from the cursor when pressing the rmb
 
 			

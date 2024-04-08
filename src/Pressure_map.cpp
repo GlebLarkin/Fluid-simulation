@@ -3,12 +3,12 @@
 
 
 	// Constructor to initialize the pressure map with given dimensions
-	Pressure_map::Pressure_map(unsigned int x_, unsigned int y_)
+	Pressure_map::Pressure_map(unsigned int x_, unsigned int y_, Data d)
 	{
 		number_of_cells.x = x_;
 		number_of_cells.y = y_;
-		size_of_cell.x = boundX / number_of_cells.x; // Calculate size of cell in x-direction
-		size_of_cell.y = boundY / number_of_cells.y; // Calculate size of cell in y-direction
+		size_of_cell.x = d.boundX / number_of_cells.x; // Calculate size of cell in x-direction
+		size_of_cell.y = d.boundY / number_of_cells.y; // Calculate size of cell in y-direction
 
 		// Dynamically allocate memory for the pressure map cells
 		ptr_for_pressure_map = new Pressure_map_cell * [number_of_cells.x];
@@ -31,7 +31,7 @@
 		ptr_for_pressure_map = nullptr;
 	}
 
-	double Pressure_map::Find_particles_pressure(Particle A, Pressure_map_cell cell) {
+	double Pressure_map::Find_particles_pressure(Particle A, Pressure_map_cell cell, Data d) {
 		//calculates the value of the "pressure" of a given particle at the point of another particle A with the coord x::y
 		//returns either the value of the "pressure" if the cell is in radius of interraction or zero if it isnt
 		//the magnitude of the "gradient" depends on the coordinate as 1/x^2, and the hyperbola is shifted to the right by a constant a on the x axis, down by a on the y axis and stretched alpha times
@@ -41,21 +41,21 @@
 		double x2 = cell.GetCoord().x;
 		double y2 = cell.GetCoord().y;
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-		if (ro > Radius_of_Interaction) { return 0; }
-		return (alpha / ((ro + a) * (ro + a)) - a); //this is a hyperbola shifted down and to the left
+		if (ro > d.Radius_of_Interaction) { return 0; }
+		return (d.alpha / ((ro + d.a) * (ro + d.a)) - d.a); //this is a hyperbola shifted down and to the left
 	}
 
-	void Pressure_map::Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels)
+	void Pressure_map::Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels, Data d)
 	//calculates pressure in every cell of the pressure map
 	{
 		for (unsigned i = 0; i < number_of_particels; i++) 
 		{
 			Particle A = ptr_for_particles_array[i]; //we precalculate it for more speed
-			for (unsigned j = Find_first_cell_number_x(A); j < Find_last_cell_number_x(A); j++)
+			for (unsigned j = Find_first_cell_number_x(A, d); j < Find_last_cell_number_x(A, d); j++)
 			{
-				for (unsigned k = Find_first_cell_number_y(A); k < Find_last_cell_number_y(A); k++)
+				for (unsigned k = Find_first_cell_number_y(A, d); k < Find_last_cell_number_y(A, d); k++)
 				{
-					double delta_pressure = Find_particles_pressure(A, ptr_for_pressure_map[j][k]);
+					double delta_pressure = Find_particles_pressure(A, ptr_for_pressure_map[j][k], d);
 					ptr_for_pressure_map[j][k].SetPressure(ptr_for_pressure_map[j][k].GetPressure() + delta_pressure);
 				}
 			}
