@@ -46,6 +46,7 @@ public:
 
 	void recolour(); //the color of the particle depends on its velocity
 
+	//void Particle::repulsion(Pressure_map& pressure_map, Data d);
 
 	/*void repulsion(Pressure_map_cell** ptr)
 	{

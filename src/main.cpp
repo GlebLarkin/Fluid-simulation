@@ -11,7 +11,7 @@
 int main(int argc, char** argv) {
 
     if (argc != 2) {
-        std::cerr << "Usage: ./FadingTrust config.json\n";
+        std::cerr << "Usage: ../examples//config.json\n";
         std::exit(1);
     }
 
@@ -55,6 +55,8 @@ int main(int argc, char** argv) {
 	
 	Particle* ptr_for_particles_array = create_particle_array(number_of_particels, d); //creates the array filled with particles
 
+	Pressure_map map(120, 80, d);
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -64,8 +66,9 @@ int main(int argc, char** argv) {
 				window.close();
 		}
 
-		
+		map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d);
 		for (unsigned int i = 0; i < number_of_particels; i++) {
+			//map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d); // Fucking shit doesnt work :/
 			ptr_for_particles_array[i].rebound(d);
 			ptr_for_particles_array[i].Earth_Gravity(d);
 			ptr_for_particles_array[i].recolour();
