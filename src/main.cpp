@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include <Class.hpp>
 #include <Func.hpp>
 #include <Particle.hpp>
@@ -81,7 +82,22 @@ int main(int argc, char** argv) {
 			
 			window.draw((ptr_for_particles_array[i]).GetCircle());
 		}
-		
+
+		for (unsigned int i = 0; i < 120; ++i){
+			for (unsigned int j = 0; j < 80; ++j){
+				std::cout << map.get_pressure_map_ptr()[i][j].GetPressure() << " ";
+			}
+			std::cout << "\n";
+		}
+		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
+		for (unsigned int i = 0; i < 120; ++i){
+			for (unsigned int j = 0; j < 80; ++j){
+				std::cout << map.get_pressure_map_ptr()[i][j].GetViscosity_x() << " ";
+			}
+			std::cout << "\n";
+		}
+		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
+		sleep(100);
 		window.display();
 		window.clear();
 		
