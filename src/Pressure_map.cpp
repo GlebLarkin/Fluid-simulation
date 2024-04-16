@@ -248,7 +248,7 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 		ro += 0.5; //we won't divide by zero in the future
 		if (ro > d.Radius_of_Interaction) { return 0; }
-		return (0.1); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
+		return (0.100038 / ((ro + 1) * (ro + 1)) - 3.846 * 0.00001); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
 	}
 /*
 	void Pressure_map::Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels, Data d)
@@ -303,7 +303,7 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
 		double x2 = cell.GetCoord_x();
 		double y2 = cell.GetCoord_y();
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-		if (ro > d.Radius_of_Viscosity) { return 0; }
+		if (ro > d.Radius_of_Viscosity || ro < size_of_cell / 2) { return 0; }
 		return (1 * abs(x1 - x2)/ ((ro + 1) * (ro + 1) * (ro + 1)) - 1); //this is a hyperbola shifted down and to the left
 	}
 
@@ -394,11 +394,11 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
     {
         if ((cell_number_y == 0 and cell_number_x != 0 and cell_number_x != number_of_cells_x - 1) or (cell_number_y == number_of_cells_y - 1 and cell_number_x != 0 and cell_number_x != number_of_cells_x - 1))
         {
-            particle.SetVx(particle.GetVx() + (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
+            particle.SetVx(particle.GetVx() - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
         }
         if ((cell_number_x == 0 and cell_number_y != 0 and cell_number_y != number_of_cells_y - 1) or (cell_number_x == number_of_cells_x - 1 and cell_number_y != 0 and cell_number_y != number_of_cells_y - 1))
         {
-            particle.SetVy(particle.GetVy() + (ptr[cell_number_x][cell_number_y + 1].GetPressure() - ptr[cell_number_x][cell_number_y - 1].GetPressure()));
+            particle.SetVy(particle.GetVy() - (ptr[cell_number_x][cell_number_y + 1].GetPressure() - ptr[cell_number_x][cell_number_y - 1].GetPressure()));
         }
     }
 	//viscosity forse

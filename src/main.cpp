@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 	
 
 	std::cout << "enter number of particles (1 000-10 000 recommended):" << std::endl;
-	unsigned int number_of_particels = 100; //defines the number of particles
+	unsigned int number_of_particels = 1; //defines the number of particles
 	//std::cin >> number_of_particels;
 
 	//std::cout << "fluid simulation will start in 4 seconds. If you want to close it, press ESC or press the red cross" << std::endl;
