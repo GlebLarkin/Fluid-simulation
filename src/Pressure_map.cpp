@@ -241,14 +241,14 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
 		//returns either the value of the "pressure" if the cell is in radius of interraction or zero if it isnt
 		//the magnitude of the "gradient" depends on the coordinate as 1/x^2, and the hyperbola is shifted to the right by a constant a on the x axis, down by a on the y axis and stretched alpha times
 		//ro - the distance from this particle to particle A
-		double x1 = A.GetX(); //just for better readability
-		double y1 = A.GetY();
-		double x2 = cell.GetCoord_x();
-		double y2 = cell.GetCoord_y();
+		double x1 = (A.GetX()/10) * 10 + 5; //just for better readability
+		double y1 = (A.GetY()/10) * 10 + 5;
+		double x2 = cell.GetCoord_x() + 5;
+		double y2 = cell.GetCoord_y() + 5;
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 		ro += 0.5; //we won't divide by zero in the future
 		if (ro > d.Radius_of_Interaction) { return 0; }
-		return (0.100038 / ((ro + 1) * (ro + 1)) - 3.846 * 0.00001); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
+		return (0.5); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
 	}
 /*
 	void Pressure_map::Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels, Data d)
@@ -395,10 +395,12 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
         if ((cell_number_y == 0 and cell_number_x != 0 and cell_number_x != number_of_cells_x - 1) or (cell_number_y == number_of_cells_y - 1 and cell_number_x != 0 and cell_number_x != number_of_cells_x - 1))
         {
             particle.SetVx(particle.GetVx() - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
+			//particle.SetVx( - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
         }
         if ((cell_number_x == 0 and cell_number_y != 0 and cell_number_y != number_of_cells_y - 1) or (cell_number_x == number_of_cells_x - 1 and cell_number_y != 0 and cell_number_y != number_of_cells_y - 1))
         {
             particle.SetVy(particle.GetVy() - (ptr[cell_number_x][cell_number_y + 1].GetPressure() - ptr[cell_number_x][cell_number_y - 1].GetPressure()));
+			//particle.SetVx( - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
         }
     }
 	//viscosity forse

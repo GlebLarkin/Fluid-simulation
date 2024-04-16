@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 	
 
 	std::cout << "enter number of particles (1 000-10 000 recommended):" << std::endl;
-	unsigned int number_of_particels = 1; //defines the number of particles
+	unsigned int number_of_particels = 10; //defines the number of particles
 	//std::cin >> number_of_particels;
 
 	//std::cout << "fluid simulation will start in 4 seconds. If you want to close it, press ESC or press the red cross" << std::endl;
@@ -50,6 +50,7 @@ int main(int argc, char** argv) {
 	}
 
 	
+	
 	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
 
 	window.setFramerateLimit(80);
@@ -67,9 +68,9 @@ int main(int argc, char** argv) {
 				window.close();
 		}
 
-		map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d);
+		//map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d);
 		for (unsigned int i = 0; i < number_of_particels; i++) {
-			//map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d); // Fucking shit doesnt work :/
+			map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d); // Fucking shit doesnt work :/
 			ptr_for_particles_array[i].rebound(d);
 			repulsion(ptr_for_particles_array[i], map, d);
 			ptr_for_particles_array[i].move();
@@ -81,9 +82,9 @@ int main(int argc, char** argv) {
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_array[i], window_pointer, d); //attraction to the cursor when pressing the lmb
 			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(ptr_for_particles_array[i], window_pointer); //repulsion from the cursor when pressing the rmb
 
-			
 			window.draw((ptr_for_particles_array[i]).GetCircle());
 		}
+		/*
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
 
 		for (unsigned int i = 0; i < 120; ++i){
@@ -93,7 +94,7 @@ int main(int argc, char** argv) {
 			std::cout << "\n";
 		}
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
-		/*
+		
 		for (unsigned int i = 0; i < 120; ++i){
 			for (unsigned int j = 0; j < 80; ++j){
 				std::cout << map.get_pressure_map_ptr()[i][j].GetViscosity_x() << " ";
