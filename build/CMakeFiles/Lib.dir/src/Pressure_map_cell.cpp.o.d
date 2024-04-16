@@ -1,5 +1,4 @@
 CMakeFiles/Lib.dir/src/Pressure_map_cell.cpp.o: \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/share/asan_ignorelist.txt \
   /Users/oleg/Documents/GitHub/Fluid-simulation/src/Pressure_map_cell.cpp \
   /Users/oleg/Documents/GitHub/Fluid-simulation/include/Pressure_map_cell.hpp \
   /Users/oleg/Documents/GitHub/Fluid-simulation/include/Func.hpp \

@@ -21,6 +21,8 @@ public:
 
 	Particle(Data d) : Particle((float)d.boundX / 2, (float)d.boundY / 2, d) {} //creates a blue particle with coord boundX / 2::boundY / 2
 
+	Particle(const Particle&) = delete;
+
 	float GetX() const { return this->circle.getPosition().x; } //coord getters and setters
 	float GetY() const { return this->circle.getPosition().y; }
 	void SetX(const float x_) { float x = GetX(); float y = GetY(); this->circle.setPosition(x_, y); }
@@ -39,7 +41,7 @@ public:
 	long double Find_speed() const; //calculates the total velocity of the particle
 
 
-	sf::CircleShape GetCircle() const; //returns the circle of the particle
+	sf::CircleShape& GetCircle(); //returns the circle of the particle
 
 	void rebound(Data d); //when a particle hits a wall/floor, it bounces off, losing some of its energy
 

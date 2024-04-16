@@ -17,7 +17,7 @@ void sleep(int sec) { std::this_thread::sleep_for(std::chrono::seconds(sec)); }/
 
 
 
-void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr, Data d) {
+void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr, Data& d) {
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
 	//we choose the second one, because we want to interact more with close particles
@@ -61,7 +61,7 @@ double generateRandomNumber() {
 	return dis(random_number); // We generate and return a random number from 0 to 1
 }
 
-Particle* create_particle_array(const unsigned int number_of_particels, Data d) {
+Particle* create_particle_array(const unsigned int number_of_particels, Data& d) {
 	//creates array of particles number_of_particels
 	Particle * ptr_for_particles_array = static_cast<Particle*>(std::aligned_alloc(alignof(Particle), sizeof(Particle) * number_of_particels));
 	

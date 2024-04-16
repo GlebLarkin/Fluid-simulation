@@ -6,7 +6,7 @@ CXX_DEFINES = -DLib_EXPORTS
 
 CXX_INCLUDES = -I/Users/oleg/Documents/GitHub/Fluid-simulation/include -I/Users/oleg/Documents/GitHub/Fluid-simulation/thirdparty -isystem /opt/homebrew/include
 
-CXX_FLAGSarm64 = -std=c++17 -fsanitize=address,undefined -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fPIC
+CXX_FLAGSarm64 = -std=c++17 -O2 -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fPIC
 
-CXX_FLAGS = -std=c++17 -fsanitize=address,undefined -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fPIC
+CXX_FLAGS = -std=c++17 -O2 -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fPIC
 

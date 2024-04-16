@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.6)
 
 #set(CMAKE_CXX_STANDART 11)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -fsanitize=address,undefined")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -g")
 
 #-fsanitize=address,undefined
 

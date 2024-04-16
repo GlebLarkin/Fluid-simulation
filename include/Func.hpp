@@ -5,6 +5,7 @@
 #include <random>
 #include <Particle.hpp>
 
+
 unsigned int getScreenWidth(); //returns screen size
 
 unsigned int getScreenHeight();
@@ -13,7 +14,7 @@ void sleep(int sec);//delay for sec seconds
 
 
 
-void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr, Data d);
+void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr, Data& d);
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
 	//we choose the second one, because we want to interact more with close particles
@@ -27,6 +28,6 @@ void right_mouse_click(Particle& A, const sf::RenderWindow* window_ptr); //we re
 double generateRandomNumber(); //generate random number from zero to one
 
 
-Particle* create_particle_array(const unsigned int number_of_particels, Data d); //creates array of particles number_of_particels
+Particle* create_particle_array(const unsigned int number_of_particels, Data& d); //creates array of particles number_of_particels
 
 #endif  // FLUID_FUNC_HPP_

@@ -1,5 +1,4 @@
 CMakeFiles/Lib.dir/src/Particle.cpp.o: \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/share/asan_ignorelist.txt \
   /Users/oleg/Documents/GitHub/Fluid-simulation/src/Particle.cpp \
   /Users/oleg/Documents/GitHub/Fluid-simulation/include/Particle.hpp \
   /opt/homebrew/include/SFML/Graphics.hpp \
