@@ -241,14 +241,15 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
 		//returns either the value of the "pressure" if the cell is in radius of interraction or zero if it isnt
 		//the magnitude of the "gradient" depends on the coordinate as 1/x^2, and the hyperbola is shifted to the right by a constant a on the x axis, down by a on the y axis and stretched alpha times
 		//ro - the distance from this particle to particle A
-		double x1 = A.GetX() + d.r; //just for better readability
-		double y1 = A.GetY() + d.r;
+		double x1 = find_this_cell_number_x(A.GetX(), d) * size_of_cell + size_of_cell / 2; //just for better readability
+		double y1 = find_this_cell_number_y(A.GetY(), d) * size_of_cell + size_of_cell / 2;
 		double x2 = cell.GetCoord_x() + size_of_cell / 2;
 		double y2 = cell.GetCoord_y() + size_of_cell / 2;
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 		//ro += 0.5; //we won't divide by zero in the future
 		if (ro > d.Radius_of_Interaction) { return 0; }
-		return (-0.005 * (ro - d.Radius_of_Interaction)); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
+		return (-0.01 * (ro - d.Radius_of_Interaction)); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
+		//return (1);
 	}
 /*
 	void Pressure_map::Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels, Data d)
@@ -382,7 +383,7 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
     unsigned int number_of_cells_x = pressure_map.get_number_of_cells_x();
     unsigned int number_of_cells_y = pressure_map.get_number_of_cells_y();
 
-    unsigned int cell_number_x = pressure_map.find_this_cell_number_x(particle.GetX() + d.r, d); //!!!!!!!! r is radius of a particle
+    unsigned int cell_number_x = pressure_map.find_this_cell_number_x(particle.GetX(), d); //!!!!!!!! r is radius of a particle
     unsigned int cell_number_y = pressure_map.find_this_cell_number_y(particle.GetY(), d);
 	//std::clog << " Real position: [" << particle.GetX() << "," << particle.GetY() << "]  Cell position: [" << pressure_map.find_this_cell_number_x(particle.GetX() + d.r) << "," << pressure_map.find_this_cell_number_y(particle.GetY()) << "] |";
 

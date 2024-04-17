@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 	
 
 	std::cout << "enter number of particles (1 000-10 000 recommended):" << std::endl;
-	unsigned int number_of_particels = 1; //defines the number of particles
+	unsigned int number_of_particels = 50; //defines the number of particles
 	//std::cin >> number_of_particels;
 
 	//std::cout << "fluid simulation will start in 4 seconds. If you want to close it, press ESC or press the red cross" << std::endl;
@@ -75,12 +75,9 @@ int main(int argc, char** argv) {
 
 			ptr_for_particles_array[i].rebound(d);
 			ptr_for_particles_array[i].move();
-			//ptr_for_particles_array[i].Earth_Gravity(d);
+			ptr_for_particles_array[i].Earth_Gravity(d);
 			ptr_for_particles_array[i].recolour();
-			ptr_for_particles_array[i].move();
-			//ptr_for_particles_array[i].Earth_Gravity(d);
-
-			
+			ptr_for_particles_array[i].move();			
 			
 
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_array[i], window_pointer, d); //attraction to the cursor when pressing the lmb
@@ -88,20 +85,19 @@ int main(int argc, char** argv) {
 
 			window.draw((ptr_for_particles_array[i]).GetCircle());
 		}
-		std::this_thread::sleep_for(std::chrono::nanoseconds(50000000));
+		//std::this_thread::sleep_for(std::chrono::nanoseconds(500000000));
 		
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
 
-		for (unsigned int i = 0; i < 120; ++i){
-			for (unsigned int j = 0; j < 80; ++j){
-				//if (map.get_pressure_map_ptr()[i][j].GetPressure() != 0) {std:: cout << "o" << " "; }
-				//else { std::cout << "." << " "; }
-				std::cout << map.get_pressure_map_ptr()[i][j].GetPressure() << " ";
+		for (unsigned int i = 0; i < map.get_number_of_cells_x(); ++i){
+			for (unsigned int j = 0; j < map.get_number_of_cells_y(); ++j){
+				if (map.get_pressure_map_ptr()[i][j].GetPressure() != 0) {std:: cout << "o" << " "; }
+				else { std::cout << "." << " "; }
+				//std::cout << map.get_pressure_map_ptr()[i][j].GetPressure() << " ";
 			}
 			std::cout << "\n";
 		}
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
-		
 		/*for (unsigned int i = 0; i < 120; ++i){
 			for (unsigned int j = 0; j < 80; ++j){
 				std::cout << map.get_pressure_map_ptr()[i][j].GetViscosity_x() << " ";
@@ -114,7 +110,6 @@ int main(int argc, char** argv) {
 		window.display();
 		window.clear();
 
-		//sleep(10);
 	}
 	window.display();
 	
