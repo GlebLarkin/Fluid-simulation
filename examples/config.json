@@ -5,7 +5,7 @@
   "coef": 1,
   "boundX": 1200,
   "boundY": 800,
-  "r": 5, 
+  "r": 10, 
   "Radius_of_Interaction" : 100,
   "Radius_of_Viscosity" : 50,
   "a": 1,

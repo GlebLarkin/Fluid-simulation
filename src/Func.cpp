@@ -56,7 +56,7 @@ double generateRandomNumber() {
 	//generate random number from zero to one
 	std::random_device rd;
 	std::mt19937 random_number(rd());
-	std::uniform_real_distribution<double> dis(0.0, 1.0);
+	std::uniform_real_distribution<double> dis(0.3, 0.7);
 
 	return dis(random_number); // We generate and return a random number from 0 to 1
 }

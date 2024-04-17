@@ -229,7 +229,7 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
 	}
 
 	//Clears memory
-	Pressure_map::~Pressure_map()
+	Pressure_map::~Pressure_map() //maybe this throws seqfault
 	{
 		for (unsigned int i = 0; i < number_of_cells_x; i++) { delete[] ptr_for_pressure_map[i]; }
 		delete[] ptr_for_pressure_map;
@@ -241,14 +241,14 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
 		//returns either the value of the "pressure" if the cell is in radius of interraction or zero if it isnt
 		//the magnitude of the "gradient" depends on the coordinate as 1/x^2, and the hyperbola is shifted to the right by a constant a on the x axis, down by a on the y axis and stretched alpha times
 		//ro - the distance from this particle to particle A
-		double x1 = (A.GetX()/10) * 10 + 5; //just for better readability
-		double y1 = (A.GetY()/10) * 10 + 5;
-		double x2 = cell.GetCoord_x() + 5;
-		double y2 = cell.GetCoord_y() + 5;
+		double x1 = A.GetX() + d.r; //just for better readability
+		double y1 = A.GetY() + d.r;
+		double x2 = cell.GetCoord_x() + size_of_cell / 2;
+		double y2 = cell.GetCoord_y() + size_of_cell / 2;
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-		ro += 0.5; //we won't divide by zero in the future
+		//ro += 0.5; //we won't divide by zero in the future
 		if (ro > d.Radius_of_Interaction) { return 0; }
-		return (0.5); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
+		return (-0.005 * (ro - d.Radius_of_Interaction)); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
 	}
 /*
 	void Pressure_map::Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels, Data d)
@@ -350,12 +350,15 @@ void Pressure_map::Calculate_pressure_map(Particle* ptr_for_particles_array, uns
 		//now we are ready to calculate pressure and viscosity
 		for (unsigned int i = 0; i < number_of_particels; i++) 
 		{
-			for (unsigned int j = Find_first_cell_number_x(ptr_for_particles_array[i], Radius_of_Interaction); j < Find_last_cell_number_x(ptr_for_particles_array[i], d, Radius_of_Interaction); j++)
+			for (unsigned int j = Find_first_cell_number_x(ptr_for_particles_array[i], Radius_of_Interaction, d); j <= Find_last_cell_number_x(ptr_for_particles_array[i], d, Radius_of_Interaction); j++)
 			{
-				for (unsigned int k = Find_first_cell_number_y(ptr_for_particles_array[i], Radius_of_Interaction); k < Find_last_cell_number_y(ptr_for_particles_array[i], d, Radius_of_Interaction); k++)
+				for (unsigned int k = Find_first_cell_number_y(ptr_for_particles_array[i], Radius_of_Interaction, d); k <= Find_last_cell_number_y(ptr_for_particles_array[i], d, Radius_of_Interaction); k++)
 				{
 					double delta_pressure = Find_particles_pressure(ptr_for_particles_array[i], ptr_for_pressure_map[j][k], d);
 					ptr_for_pressure_map[j][k].SetPressure(ptr_for_pressure_map[j][k].GetPressure() + delta_pressure);
+					//ptr_for_pressure_map[j][k].SetPressure(1);
+					//if (j == find_this_cell_number_x(ptr_for_particles_array[i].GetX(), d)) { ptr_for_pressure_map[j][k].SetPressure(0); }
+					//if (k == find_this_cell_number_y(ptr_for_particles_array[i].GetY(), d)) { ptr_for_pressure_map[j][k].SetPressure(0); }
 
 
 					double delta_speed_x = ptr_for_particles_array[i].GetVx() - ptr_for_pressure_map[j][k].GetSpeed_x();
@@ -379,8 +382,8 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
     unsigned int number_of_cells_x = pressure_map.get_number_of_cells_x();
     unsigned int number_of_cells_y = pressure_map.get_number_of_cells_y();
 
-    unsigned int cell_number_x = pressure_map.find_this_cell_number_x(particle.GetX() + d.r); //!!!!!!!! r is radius of a particle
-    unsigned int cell_number_y = pressure_map.find_this_cell_number_y(particle.GetY());
+    unsigned int cell_number_x = pressure_map.find_this_cell_number_x(particle.GetX() + d.r, d); //!!!!!!!! r is radius of a particle
+    unsigned int cell_number_y = pressure_map.find_this_cell_number_y(particle.GetY(), d);
 	//std::clog << " Real position: [" << particle.GetX() << "," << particle.GetY() << "]  Cell position: [" << pressure_map.find_this_cell_number_x(particle.GetX() + d.r) << "," << pressure_map.find_this_cell_number_y(particle.GetY()) << "] |";
 
     if (cell_number_x != 0 and cell_number_y != 0 and cell_number_x != number_of_cells_x - 1 and cell_number_y != number_of_cells_y - 1)
@@ -397,11 +400,11 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
             particle.SetVx(particle.GetVx() - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
 			//particle.SetVx( - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
         }
-        if ((cell_number_x == 0 and cell_number_y != 0 and cell_number_y != number_of_cells_y - 1) or (cell_number_x == number_of_cells_x - 1 and cell_number_y != 0 and cell_number_y != number_of_cells_y - 1))
+        /*if ((cell_number_x == 0 and cell_number_y != 0 and cell_number_y != number_of_cells_y - 1) or (cell_number_x == number_of_cells_x - 1 and cell_number_y != 0 and cell_number_y != number_of_cells_y - 1))
         {
             particle.SetVy(particle.GetVy() - (ptr[cell_number_x][cell_number_y + 1].GetPressure() - ptr[cell_number_x][cell_number_y - 1].GetPressure()));
 			//particle.SetVx( - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
-        }
+        }*/
     }
 	//viscosity forse
 	/*
