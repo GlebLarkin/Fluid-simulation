@@ -54,7 +54,7 @@ void Particle::recolour() {
 	this->circle.setFillColor(circleColor);
 }
 */
-void Particle::Earth_Gravity(Data d) { this->vy += d.g; } //its really gravity, makes the particle fall faster
+void Particle::Earth_Gravity(Data & d) { this->vy += d.g; } //its really gravity, makes the particle fall faster
 
 void Particle::move() {  //particle movenment
 	vx *= 0.98;
@@ -70,7 +70,7 @@ long double Particle::Find_speed() const { return sqrt((this->vx) * (this->vx) +
 
 sf::CircleShape& Particle::GetCircle() { return this->circle; } //returns the circle of the particle
 
-void Particle::rebound(Data d) {
+void Particle::rebound(Data & d) {
 	//when a particle hits a wall/floor, it bounces off, losing some of its energy
 	/*if (this->GetY() + 2 * d.r > d.boundY) { //the force of friction on the floor
 			this->SetVx(this->GetVx() * 0.97);
