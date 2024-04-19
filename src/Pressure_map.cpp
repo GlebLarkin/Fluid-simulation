@@ -248,8 +248,10 @@ void repulsion(Particle& particle, Pressure_map& pressure_map, Data& d) //now al
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 		//ro += 0.5; //we won't divide by zero in the future
 		if (ro > d.Radius_of_Interaction) { return 0; }
-		return (-0.01 * (ro - d.Radius_of_Interaction)); //this is a hyperbola shifted down and to the left 10.0026 / ((ro + 1) * (ro + 1)) - 0.0026
-		//return (1);
+		long double a = 1; 
+		long double b = 0.01;
+		//long double normal_coef = 2 * d.PI * (a * (std::log(d.Radius_of_Interaction + 1) - 1) - 0.5 * b * pow(d.Radius_of_Interaction, 2)); //now pressure doesn't depends on radius of interraction
+		return double((-1 * std::sqrt(10000 - (a * ro - 100) * (a * ro - 100)) + 100) * b);
 	}
 /*
 	void Pressure_map::Calculate_pressure(Particle* ptr_for_particles_array, unsigned int number_of_particels, Data d)

@@ -57,6 +57,8 @@ void Particle::recolour() {
 void Particle::Earth_Gravity(Data d) { this->vy += d.g; } //its really gravity, makes the particle fall faster
 
 void Particle::move() {  //particle movenment
+	vx *= 0.98;
+	vy *= 0.98;
 	float x = GetX();
 	float y = GetY();
 	this->circle.setPosition(x += (float)vx, y += (float)vy);
