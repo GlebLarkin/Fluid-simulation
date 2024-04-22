@@ -1,13 +1,13 @@
 
 {
   "PI": 3.14,
-  "g": 0.050, 
+  "g": 0.2, 
   "coef": 1,
   "boundX": 1200,
   "boundY": 800,
   "r": 5, 
-  "Radius_of_Interaction" : 100,
-  "Radius_of_Viscosity" : 50,
+  "Radius_of_Interaction" : 20,
+  "Radius_of_Viscosity" : 0.5,
   "a": 1,
-  "alpha": 0.01
+  "alpha": 1
 }

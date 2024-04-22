@@ -4,7 +4,7 @@
 # compile CXX with /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++
 CXX_DEFINES = -DLib_EXPORTS
 
-CXX_INCLUDES = -I/Users/oleg/Documents/GitHub/Fluid-simulation/include -I/Users/oleg/Documents/GitHub/Fluid-simulation/thirdparty -isystem /opt/homebrew/include
+CXX_INCLUDES = -I/Users/oleg/documents/GitHub/Fluid-simulation/include -I/Users/oleg/documents/GitHub/Fluid-simulation/thirdparty -isystem /opt/homebrew/include
 
 CXX_FLAGSarm64 = -std=c++17 -O2 -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fPIC
 

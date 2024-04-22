@@ -28,14 +28,14 @@ int main(int argc, char** argv) {
 	
 
 	std::cout << "enter number of particles (1 000-10 000 recommended):" << std::endl;
-	unsigned int number_of_particels = 10; //defines the number of particles
+	unsigned int number_of_particels = 700; //defines the number of particles
 	//std::cin >> number_of_particels;
 
 	//std::cout << "fluid simulation will start in 4 seconds. If you want to close it, press ESC or press the red cross" << std::endl;
 	//sleep(4);
 
 
-	if (!os_type) 
+	if (!os_type)
 	{
 		d.boundX = getScreenWidth();
 		d.boundY = getScreenHeight();
@@ -68,34 +68,37 @@ int main(int argc, char** argv) {
 				window.close();
 		}
 
+		map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d); // Fucking shit doesnt work :/
+
 		//map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d);
 		for (unsigned int i = 0; i < number_of_particels; i++) {
-			map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d); // Fucking shit doesnt work :/
-			ptr_for_particles_array[i].rebound(d);
 			repulsion(ptr_for_particles_array[i], map, d);
+			ptr_for_particles_array[i].rebound(d);
 			ptr_for_particles_array[i].move();
-			//ptr_for_particles_array[i].Earth_Gravity(d);
-			ptr_for_particles_array[i].recolour();
-			ptr_for_particles_array[i].move();
-			//ptr_for_particles_array[i].Earth_Gravity(d);
+			ptr_for_particles_array[i].Earth_Gravity(d);
+			//ptr_for_particles_array[i].recolour();
+			ptr_for_particles_array[i].move();			
+			
 
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_array[i], window_pointer, d); //attraction to the cursor when pressing the lmb
 			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(ptr_for_particles_array[i], window_pointer); //repulsion from the cursor when pressing the rmb
 
 			window.draw((ptr_for_particles_array[i]).GetCircle());
 		}
-		/*
+		//std::this_thread::sleep_for(std::chrono::nanoseconds(500000000));
+		
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
 
-		for (unsigned int i = 0; i < 120; ++i){
-			for (unsigned int j = 0; j < 80; ++j){
-				std::cout << map.get_pressure_map_ptr()[i][j].GetPressure() << " ";
+		for (unsigned int i = 0; i < map.get_number_of_cells_x(); ++i){
+			for (unsigned int j = 0; j < map.get_number_of_cells_y(); ++j){
+				if (map.get_pressure_map_ptr()[i][j].GetPressure() != 0) {std:: cout << "o" << " "; }
+				else { std::cout << "." << " "; }
+				//std::cout << map.get_pressure_map_ptr()[i][j].GetPressure() << " ";
 			}
 			std::cout << "\n";
 		}
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
-		
-		for (unsigned int i = 0; i < 120; ++i){
+		/*for (unsigned int i = 0; i < 120; ++i){
 			for (unsigned int j = 0; j < 80; ++j){
 				std::cout << map.get_pressure_map_ptr()[i][j].GetViscosity_x() << " ";
 			}
@@ -103,10 +106,10 @@ int main(int argc, char** argv) {
 		}
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
 		*/
+		
 		window.display();
 		window.clear();
 
-		//sleep(10);
 	}
 	window.display();
 	

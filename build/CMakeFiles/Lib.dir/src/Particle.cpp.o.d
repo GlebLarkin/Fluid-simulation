@@ -1,6 +1,6 @@
 CMakeFiles/Lib.dir/src/Particle.cpp.o: \
-  /Users/oleg/Documents/GitHub/Fluid-simulation/src/Particle.cpp \
-  /Users/oleg/Documents/GitHub/Fluid-simulation/include/Particle.hpp \
+  /Users/oleg/documents/GitHub/Fluid-simulation/src/Particle.cpp \
+  /Users/oleg/documents/GitHub/Fluid-simulation/include/Particle.hpp \
   /opt/homebrew/include/SFML/Graphics.hpp \
   /opt/homebrew/include/SFML/Window.hpp \
   /opt/homebrew/include/SFML/System.hpp \
@@ -953,8 +953,8 @@ CMakeFiles/Lib.dir/src/Particle.cpp.o: \
   /opt/homebrew/include/SFML/Graphics/Sprite.hpp \
   /opt/homebrew/include/SFML/Graphics/Text.hpp \
   /opt/homebrew/include/SFML/Graphics/VertexBuffer.hpp \
-  /Users/oleg/Documents/GitHub/Fluid-simulation/include/Class.hpp \
-  /Users/oleg/Documents/GitHub/Fluid-simulation/thirdparty/nlohmann_json/json.hpp \
+  /Users/oleg/documents/GitHub/Fluid-simulation/include/Class.hpp \
+  /Users/oleg/documents/GitHub/Fluid-simulation/thirdparty/nlohmann_json/json.hpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/usr/include/c++/v1/forward_list \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/usr/include/c++/v1/valarray \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/usr/include/c++/v1/cassert \

@@ -1,4 +1,4 @@
-/Users/oleg/Documents/GitHub/Fluid-simulation/build/CMakeFiles/Lib.dir
-/Users/oleg/Documents/GitHub/Fluid-simulation/build/CMakeFiles/MyProj.dir
-/Users/oleg/Documents/GitHub/Fluid-simulation/build/CMakeFiles/edit_cache.dir
-/Users/oleg/Documents/GitHub/Fluid-simulation/build/CMakeFiles/rebuild_cache.dir
+/Users/oleg/documents/GitHub/Fluid-simulation/build/CMakeFiles/Lib.dir
+/Users/oleg/documents/GitHub/Fluid-simulation/build/CMakeFiles/MyProj.dir
+/Users/oleg/documents/GitHub/Fluid-simulation/build/CMakeFiles/edit_cache.dir
+/Users/oleg/documents/GitHub/Fluid-simulation/build/CMakeFiles/rebuild_cache.dir
