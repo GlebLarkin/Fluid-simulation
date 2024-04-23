@@ -1,0 +1,4 @@
+/home/gleb/Study/Coding/CppProjects/GitHub-rep/build/CMakeFiles/Lib.dir
+/home/gleb/Study/Coding/CppProjects/GitHub-rep/build/CMakeFiles/MyProj.dir
+/home/gleb/Study/Coding/CppProjects/GitHub-rep/build/CMakeFiles/edit_cache.dir
+/home/gleb/Study/Coding/CppProjects/GitHub-rep/build/CMakeFiles/rebuild_cache.dir

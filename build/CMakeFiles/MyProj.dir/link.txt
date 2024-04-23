@@ -1,0 +1,1 @@
+/usr/bin/c++ -std=c++17 -O2 -g CMakeFiles/MyProj.dir/src/main.cpp.o -o MyProj  -Wl,-rpath,/home/gleb/Study/Coding/CppProjects/GitHub-rep/build /usr/lib/x86_64-linux-gnu/libsfml-audio.so.2.5.1 libLib.so /usr/lib/x86_64-linux-gnu/libsfml-graphics.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-window.so.2.5.1 /usr/lib/x86_64-linux-gnu/libsfml-system.so.2.5.1 
