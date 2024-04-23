@@ -63,6 +63,15 @@
         "valarray": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "condition_variable": "cpp",
+        "csetjmp": "cpp",
+        "csignal": "cpp",
+        "deque": "cpp",
+        "execution": "cpp",
+        "list": "cpp",
+        "queue": "cpp",
+        "scoped_allocator": "cpp",
+        "unordered_set": "cpp"
     }
 }

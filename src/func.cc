@@ -1,23 +1,23 @@
-#include "Func.hpp"
+#include "func.h"
 #include <memory>
 
-unsigned int getScreenWidth() //returns screen size
+unsigned int GetScreenWidth() //returns screen size
 {
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 	return desktop.width;
 }
 
-unsigned int getScreenHeight()
+unsigned int GetScreenHeight()
 {
 	sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 	return desktop.height;
 }
 
-void sleep(int sec) { std::this_thread::sleep_for(std::chrono::seconds(sec)); }//delay for sec seconds
+void Sleep(int sec) { std::this_thread::sleep_for(std::chrono::seconds(sec)); }//delay for sec seconds
 
 
 
-void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr, Data& d) {
+void LeftMouseClick(Particle& A, const sf::RenderWindow* window_ptr, Data& d) {
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
 	//we choose the second one, because we want to interact more with close particles
@@ -38,21 +38,21 @@ void left_mouse_click(Particle& A, const sf::RenderWindow* window_ptr, Data& d) 
 	A.SetVy(A.GetVy() + direction.y);
 }
 
-void right_mouse_click(Particle& A, const sf::RenderWindow* window_ptr) {
+void RightMouseClick(Particle& A, const sf::RenderWindow* window_ptr) {
 	//we relize repulsion from the cursor when the mouse is clicked(rmb)
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-	if (length > 300) return;
+	if (length > 600) return;
 	direction = (sf::Vector2f)(direction * 100.0f / (length * length));
 
-	A.SetVx(A.GetVx() - 0.3 * direction.x);
-	A.SetVy(A.GetVy() - 0.3 * direction.y);
+	A.SetVx(A.GetVx() - 0.6 * direction.x);
+	A.SetVy(A.GetVy() - 0.6 * direction.y);
 }
 
 
 
-double generateRandomNumber() {
+double GenerateRandomNumber() {
 	//generate random number from zero to one
 	std::random_device rd;
 	std::mt19937 random_number(rd());
@@ -61,7 +61,7 @@ double generateRandomNumber() {
 	return dis(random_number); // We generate and return a random number from 0 to 1
 }
 
-Particle* create_particle_array(const unsigned int number_of_particels, Data& d) {
+Particle* CreateParticleArray(const unsigned int number_of_particels, Data& d, const sf::Texture& texture) {
 	//creates array of particles number_of_particels
 	Particle * ptr_for_particles_array = static_cast<Particle*>(std::aligned_alloc(alignof(Particle), sizeof(Particle) * number_of_particels));
 	
@@ -69,9 +69,9 @@ Particle* create_particle_array(const unsigned int number_of_particels, Data& d)
 
 	for (unsigned int i = 0; i < number_of_particels; i++) {
 	//Particle* ptr_for_particles_array = new Particle(d) [number_of_particels];
-		new (ptr_for_particles_array + i) Particle(d);
-		ptr_for_particles_array[i].SetX((float)(d.boundX * generateRandomNumber())); //every particle from the array has random coord
-		ptr_for_particles_array[i].SetY((float)(d.boundY * generateRandomNumber()));
+		new (ptr_for_particles_array + i) Particle(d, texture);
+		ptr_for_particles_array[i].SetX((float)(d.boundX * GenerateRandomNumber())); //every particle from the array has random coord
+		ptr_for_particles_array[i].SetY((float)(d.boundY * GenerateRandomNumber()));
 	}
 	return ptr_for_particles_array;
 }
