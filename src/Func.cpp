@@ -43,11 +43,11 @@ void right_mouse_click(Particle& A, const sf::RenderWindow* window_ptr) {
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-	if (length > 300) return;
+	if (length > 600) return;
 	direction = (sf::Vector2f)(direction * 100.0f / (length * length));
 
-	A.SetVx(A.GetVx() - 0.3 * direction.x);
-	A.SetVy(A.GetVy() - 0.3 * direction.y);
+	A.SetVx(A.GetVx() - 0.6 * direction.x);
+	A.SetVy(A.GetVy() - 0.6 * direction.y);
 }
 
 
@@ -61,7 +61,7 @@ double generateRandomNumber() {
 	return dis(random_number); // We generate and return a random number from 0 to 1
 }
 
-Particle* create_particle_array(const unsigned int number_of_particels, Data& d) {
+Particle* create_particle_array(const unsigned int number_of_particels, Data& d, const sf::Texture& texture) {
 	//creates array of particles number_of_particels
 	Particle * ptr_for_particles_array = static_cast<Particle*>(std::aligned_alloc(alignof(Particle), sizeof(Particle) * number_of_particels));
 	
@@ -69,7 +69,7 @@ Particle* create_particle_array(const unsigned int number_of_particels, Data& d)
 
 	for (unsigned int i = 0; i < number_of_particels; i++) {
 	//Particle* ptr_for_particles_array = new Particle(d) [number_of_particels];
-		new (ptr_for_particles_array + i) Particle(d);
+		new (ptr_for_particles_array + i) Particle(d, texture);
 		ptr_for_particles_array[i].SetX((float)(d.boundX * generateRandomNumber())); //every particle from the array has random coord
 		ptr_for_particles_array[i].SetY((float)(d.boundY * generateRandomNumber()));
 	}

@@ -49,13 +49,36 @@ int main(int argc, char** argv) {
 		window.create(sf::VideoMode(d.boundX, d.boundY), "Fluid simulation"); //bullshit for mac
 	}
 
+
+	const int textureSize = 2 * d.r;
+    sf::RenderTexture renderTexture;
+    renderTexture.create(textureSize, textureSize);
+
+    sf::Image image;
+    image.create(textureSize, textureSize);
+
+    for (int y = 0; y < textureSize; ++y) {
+        for (int x = 0; x < textureSize; ++x) {
+            float dx = x - d.r;
+            float dy = y - d.r;
+            float distance = std::sqrt(dx * dx + dy * dy);
+            float alpha = 255 * (1 - distance / d.r);
+            alpha = std::max(0.0f, std::min(255.0f, alpha));
+            image.setPixel(x, y, sf::Color(255, 255, 255, static_cast<sf::Uint8>(alpha)));
+        }
+    }
+
+    sf::Texture texture;
+    texture.loadFromImage(image);
+
+
 	
 	
 	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
 
 	window.setFramerateLimit(80);
 	
-	Particle* ptr_for_particles_array = create_particle_array(number_of_particels, d); //creates the array filled with particles
+	Particle* ptr_for_particles_array = create_particle_array(number_of_particels, d, texture); //creates the array filled with particles
 
 	Pressure_map map(120, 80, d);
 
@@ -68,15 +91,14 @@ int main(int argc, char** argv) {
 				window.close();
 		}
 
-		map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d); // Fucking shit doesnt work :/
+		map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d);
 
-		//map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d);
 		for (unsigned int i = 0; i < number_of_particels; i++) {
 			repulsion(ptr_for_particles_array[i], map, d);
 			ptr_for_particles_array[i].rebound(d);
 			ptr_for_particles_array[i].move();
 			ptr_for_particles_array[i].Earth_Gravity(d);
-			//ptr_for_particles_array[i].recolour();
+			ptr_for_particles_array[i].recolour();
 			ptr_for_particles_array[i].move();			
 			
 

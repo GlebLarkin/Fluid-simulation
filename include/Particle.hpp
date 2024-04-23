@@ -12,14 +12,15 @@ class Particle
 {
 public:
 	
-	Particle(float x_, float y_, Data d) { //creates a blue particle with coord x::y
+	Particle(float x_, float y_, Data d, const sf::Texture& texture) { //creates a blue particle with coord x::y
 		sf::Color circleColor(100, 255, 127);
 		circle.setFillColor(circleColor);
 		circle.setPosition(x_, y_);
 		circle.setRadius(d.r);
+		circle.setTexture(&texture);
 	}
 
-	Particle(Data d) : Particle((float)d.boundX / 2, (float)d.boundY / 2, d) {} //creates a blue particle with coord boundX / 2::boundY / 2
+	Particle(Data d, const sf::Texture& texture) : Particle((float)d.boundX / 2, (float)d.boundY / 2, d, texture) {} //creates a blue particle with coord boundX / 2::boundY / 2
 
 	Particle(const Particle&) = delete;
 

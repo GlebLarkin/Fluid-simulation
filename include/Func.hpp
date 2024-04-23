@@ -28,6 +28,6 @@ void right_mouse_click(Particle& A, const sf::RenderWindow* window_ptr); //we re
 double generateRandomNumber(); //generate random number from zero to one
 
 
-Particle* create_particle_array(const unsigned int number_of_particels, Data& d); //creates array of particles number_of_particels
+Particle* create_particle_array(const unsigned int number_of_particels, Data& d, const sf::Texture& texture); //creates array of particles number_of_particels
 
 #endif  // FLUID_FUNC_HPP_
