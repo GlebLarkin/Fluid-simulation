@@ -13,10 +13,6 @@ unsigned int GetScreenHeight()
 	return desktop.height;
 }
 
-void Sleep(int sec) { std::this_thread::sleep_for(std::chrono::seconds(sec)); }//delay for sec seconds
-
-
-
 void LeftMouseClick(Particle& A, const sf::RenderWindow* window_ptr, Data& d) {
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
@@ -43,14 +39,12 @@ void RightMouseClick(Particle& A, const sf::RenderWindow* window_ptr) {
 	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
 	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-	if (length > 600) return;
+	if (length > 400) return;
 	direction = (sf::Vector2f)(direction * 100.0f / (length * length));
 
 	A.SetVx(A.GetVx() - 0.6 * direction.x);
 	A.SetVy(A.GetVy() - 0.6 * direction.y);
 }
-
-
 
 double GenerateRandomNumber() {
 	//generate random number from zero to one

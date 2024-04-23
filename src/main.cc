@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <thread>
 #include <class.h>
 #include <func.h>
 #include <particle.h>
@@ -38,7 +39,6 @@ void Function(unsigned int number_of_particles, unsigned int& start_mas, unsigne
 };
 
 
-
 int main(int argc, char** argv) {
 
     if (argc != 2) {
@@ -51,20 +51,10 @@ int main(int argc, char** argv) {
     Data d{config};
 
 	sf::RenderWindow window;
-	//std::cout << "if you have linux os of windows os, enter 0, if you have mac os or smth else, enter 1:" << std::endl;
 	bool os_type = 1;
-	//std::cin >> os_type;
-	//if (os_type){ std::cout << "mac sucks" << std::endl; }
 	
-
-	//std::cout << "enter number of particles (1 000-10 000 recommended):" << std::endl;
-	unsigned int number_of_particles = 2000; //defines the number of particles
-	//std::cin >> number_of_particels;
-
-	//std::cout << "fluid simulation will start in 4 seconds. If you want to close it, press ESC or press the red cross" << std::endl;
-	//sleep(4);
+	unsigned int number_of_particles = 1500; //defines the number of particles
 	
-
 	if (!os_type)
 	{
 		d.boundX = GetScreenWidth();
@@ -78,7 +68,6 @@ int main(int argc, char** argv) {
 		d.boundY = 800;
 		window.create(sf::VideoMode(d.boundX, d.boundY), "Fluid simulation"); //bullshit for mac
 	}
-
 
 	const int textureSize = 2 * d.r;
     sf::RenderTexture renderTexture;
@@ -100,7 +89,6 @@ int main(int argc, char** argv) {
 
     sf::Texture texture;
     texture.loadFromImage(image);
-
 	
 	
 	const sf::RenderWindow* window_pointer = &window; //we precalculate it for more speed in the future
@@ -109,20 +97,38 @@ int main(int argc, char** argv) {
 	
 	Particle* ptr_for_particles_array = CreateParticleArray(number_of_particles, d, texture); //creates the array filled with particles
 
-	PressureMap map(120, 80, d);
+	PressureMap map(1200/4, 800/4, d);
 
 	//--------------------------------- THREADS -------------------------------------
 
-	unsigned int NUM_THREADS = 10;
+	unsigned int MAXIMUM_THREADS = std::thread::hardware_concurrency();
+	unsigned int NUM_THREADS;
+	unsigned int ONE_THREAD_CAPACITY = 150;
+
+	unsigned int *start_mas = new unsigned int[10];
+	unsigned int *end_mas = new unsigned int[10];
+
+	if (MAXIMUM_THREADS >= 10){
+		NUM_THREADS = 10;
+		for (unsigned int i = 0; i < NUM_THREADS; i++){
+			start_mas[i] = i * ONE_THREAD_CAPACITY;
+			end_mas[i] = ONE_THREAD_CAPACITY + i * ONE_THREAD_CAPACITY;
+		}
+	}
+	else{
+		NUM_THREADS = MAXIMUM_THREADS;
+		for (unsigned int i = 0; i < NUM_THREADS; i++){
+			start_mas[i] = i * ONE_THREAD_CAPACITY;
+			end_mas[i] = ONE_THREAD_CAPACITY + i * ONE_THREAD_CAPACITY;
+		}
+	}
+
 	std::mutex mut;
 
     Barrier bar(NUM_THREADS + 1, NullCallback{});
 
 	std::vector<std::thread> threads;
     threads.reserve(NUM_THREADS);
-
-	unsigned int *start_mas {new unsigned int[10]{ 0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800}};
-	unsigned int *end_mas {new unsigned int[10]{200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000}};
 
 	for (size_t i = 0; i < NUM_THREADS; ++i) {
         threads.push_back(std::thread(Function, std::ref(number_of_particles), std::ref(start_mas[i]), std::ref(end_mas[i]), std::ref(d), std::ref(map), std::ref(ptr_for_particles_array), std::ref(window_pointer), std::ref(window), std::ref(mut), std::ref(bar)));
@@ -139,31 +145,13 @@ int main(int argc, char** argv) {
 		}
 
 		map.Calculate_pressure_map(ptr_for_particles_array, number_of_particles, d); // Fucking shit doesnt work :/
+		bar.ArriveAndWait();
 
 		bar.ArriveAndWait();
 
-		//function(number_of_particels, d, map, ptr_for_particles_array, window_pointer, window);
-
-		//map.Calculate_pressure_map(ptr_for_particles_array, number_of_particels, d);
-		/*
-		for (unsigned int i = 0; i < number_of_particels; i++) {
-			repulsion(ptr_for_particles_array[i], map, d);
-			ptr_for_particles_array[i].rebound(d);
-			ptr_for_particles_array[i].move();
-			ptr_for_particles_array[i].Earth_Gravity(d);
-			//ptr_for_particles_array[i].recolour();
-			ptr_for_particles_array[i].move();			
-			
-
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) left_mouse_click(ptr_for_particles_array[i], window_pointer, d); //attraction to the cursor when pressing the lmb
-			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) right_mouse_click(ptr_for_particles_array[i], window_pointer); //repulsion from the cursor when pressing the rmb
-
-			window.draw((ptr_for_particles_array[i]).GetCircle());
-		}
-		*/
-
-		bar.ArriveAndWait();
-		
+		//Map checkout, very important instrument to chech, whether pressure map works the way it shold
+		//To turn on map in terminal uncomment code below
+		/* 
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
 
 		for (unsigned int i = 0; i < map.GetNumberOfCellsX(); ++i){
@@ -174,10 +162,11 @@ int main(int argc, char** argv) {
 			}
 			std::cout << "\n";
 		}
+		
 		std::cout << "---------------------------------------------------------------------------------------------------------------------------------------\n";
-		/*for (unsigned int i = 0; i < 120; ++i){
+		for (unsigned int i = 0; i < 120; ++i){
 			for (unsigned int j = 0; j < 80; ++j){
-				std::cout << map.get_pressure_map_ptr()[i][j].GetViscosity_x() << " ";
+				std::cout << map.GetPressureMapPtr()[i][j].GetViscosity() << " ";
 			}
 			std::cout << "\n";
 		}
@@ -193,12 +182,11 @@ int main(int argc, char** argv) {
 
 	bar.ArriveAndWait();
 
-	for (size_t i = 0; i < NUM_THREADS; ++i) {
-        threads[i].join();
-    }
-	
+	delete [] start_mas;
+	delete [] end_mas;
+
 	std::free(ptr_for_particles_array);
 
-	delete[] ptr_for_particles_array; //clears memory
+	delete[] ptr_for_particles_array; //clears memory for particle array
 	return 0;
 }

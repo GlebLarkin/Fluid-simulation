@@ -7,8 +7,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Lib.dir/src/pressure_map.cc.o.d"
   "CMakeFiles/Lib.dir/src/pressure_map_cell.cc.o"
   "CMakeFiles/Lib.dir/src/pressure_map_cell.cc.o.d"
+  "libLib.dylib"
   "libLib.pdb"
-  "libLib.so"
 )
 
 # Per-language clean rules from dependency scanning.

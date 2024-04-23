@@ -2,7 +2,7 @@
 #include <iostream>
 
 // Constructor to initialize the pressure map with given dimensions
-PressureMap::PressureMap(unsigned int x, unsigned int y, Data& d): size_of_cell(10), number_of_cells_x(x), number_of_cells_y(y)
+PressureMap::PressureMap(unsigned int x, unsigned int y, Data& d): size_of_cell(4), number_of_cells_x(x), number_of_cells_y(y)
 {
 	/*
 	number_of_cells_x = x_;
@@ -38,7 +38,7 @@ double PressureMap::FindParticlesPressure(Particle& A, PressureMapCell& cell, Da
 		//ro - the distance from this particle to particle A
 
 		double R = d.Radius_of_Interaction;
-		float normal_coef = 17; //look for it in python file
+		float normal_coef = 8.93; //look for it in python file8.93
 		double P_max = 1; 
 
 		double x1 = FindThisCellNumberX(A.GetX(), d) * size_of_cell + size_of_cell / 2; 
@@ -106,12 +106,14 @@ void PressureMap::FindParticlesViscosityCoef(Particle& A, PressureMapCell& cell,
 		double x2 = cell.GetCoordX() + size_of_cell / 2;
 		double y2 = cell.GetCoordY() + size_of_cell / 2;
 		double ro = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+		double R = d.Radius_of_Viscosity;
 		if (ro > d.Radius_of_Viscosity || ro <= 1.415 * size_of_cell / 2) { return; } //sqrt 2 = 1.414
 		else
 		{
 			cell.SetSpeedX(cell.GetSpeedX() + A.GetVx());
 			cell.SetSpeedY(cell.GetSpeedY() + A.GetVy());
-			cell.SetViscosity(cell.GetViscosity() + 1); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			cell.SetViscosity(cell.GetViscosity() + (10 * ((-10) * std::sqrt(1 - ((ro - R) / R) * ((ro- R) / R)) + 10)) / 40); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//  float (10 * ((-P_max) * std::sqrt(1 - ((ro - R) / R) * ((ro- R) / R)) + P_max))
 		}
 	}
 
@@ -126,15 +128,30 @@ void PressureMap::Calculate_pressure_map(Particle* ptr_for_particles_array, cons
 		
 	for (unsigned int i = 0; i < number_of_cells_x; i++)
 	{
-		for (unsigned int j = 0; j < number_of_cells_y; j++)
+		for (unsigned int j = 0; j < number_of_cells_y - 10; j++)
 		{
 			ptr_for_pressure_map[i][j].SetPressure(0);
-			ptr_for_pressure_map[i][j].SetViscosity(0);
-			ptr_for_pressure_map[i][j].SetSpeedX(0);
-			ptr_for_pressure_map[i][j].SetSpeedY(0);
+			//ptr_for_pressure_map[i][j].SetViscosity(0);
+			//ptr_for_pressure_map[i][j].SetSpeedX(0);
+			//ptr_for_pressure_map[i][j].SetSpeedY(0);
+			
 		}
 	}
-		
+
+	for (unsigned int i = 0; i < number_of_cells_x; i++)
+	{
+		ptr_for_pressure_map[i][number_of_cells_y - 10].SetPressure(10 * 0.005);
+		ptr_for_pressure_map[i][number_of_cells_y - 9].SetPressure(10 * 0.01);
+		ptr_for_pressure_map[i][number_of_cells_y - 8].SetPressure(10 * 0.02);
+		ptr_for_pressure_map[i][number_of_cells_y - 7].SetPressure(10 * 0.07);
+		ptr_for_pressure_map[i][number_of_cells_y - 6].SetPressure(10 * 0.15);
+		ptr_for_pressure_map[i][number_of_cells_y - 5].SetPressure(10 * 0.2);
+		ptr_for_pressure_map[i][number_of_cells_y - 4].SetPressure(10 * 0.3);
+		ptr_for_pressure_map[i][number_of_cells_y - 3].SetPressure(10 * 0.4);
+		ptr_for_pressure_map[i][number_of_cells_y - 2].SetPressure(10 * 0.6);
+		ptr_for_pressure_map[i][number_of_cells_y - 1].SetPressure(10 * 1);
+	}
+
 	//now we are ready to calculate pressure and viscosity
 	for (unsigned int i = 0; i < number_of_particels; i++) 
 	{
@@ -153,7 +170,7 @@ void PressureMap::Calculate_pressure_map(Particle* ptr_for_particles_array, cons
 
 				ptr_for_pressure_map[j][k].SetViscosityX(ptr_for_pressure_map[j][k].GetViscosityX() + delta_viscosity_x);
 				ptr_for_pressure_map[j][k].SetViscosityY(ptr_for_pressure_map[j][k].GetViscosityY() + delta_viscosity_y);*/
-				FindParticlesViscosityCoef(ptr_for_particles_array[i], ptr_for_pressure_map[j][k], d);
+				//FindParticlesViscosityCoef(ptr_for_particles_array[i], ptr_for_pressure_map[j][k], d);
 			}
 		}
 	}
@@ -180,7 +197,7 @@ void Repulsion(Particle& particle, PressureMap& pressure_map, Data& d) //now all
     }
     else
     {
-        if ((cell_number_y == 0 and cell_number_x != 0 and cell_number_x != number_of_cells_x - 1) or (cell_number_y == number_of_cells_y - 1 and cell_number_x != 0 and cell_number_x != number_of_cells_x - 1))
+		if ((cell_number_y == 0 and cell_number_x != 0 and cell_number_x != number_of_cells_x - 1) or (cell_number_y == number_of_cells_y - 1 and cell_number_x != 0 and cell_number_x != number_of_cells_x - 1))
         {
             particle.SetVx(particle.GetVx() - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
 			//particle.SetVx( - (ptr[cell_number_x + 1][cell_number_y].GetPressure() - ptr[cell_number_x - 1][cell_number_y].GetPressure()));
@@ -192,8 +209,10 @@ void Repulsion(Particle& particle, PressureMap& pressure_map, Data& d) //now all
         }
     }
 	//viscosity forse
+	/*
 	double vx = particle.GetVx();
 	double vy = particle.GetVy();
-    particle.SetVx(vx + ptr[cell_number_x][cell_number_y].GetViscosity() * (vx - ptr[cell_number_x][cell_number_y].GetSpeedX()));
-    particle.SetVy(vy + ptr[cell_number_x][cell_number_y].GetViscosity() * (vy - ptr[cell_number_x][cell_number_y].GetSpeedY()));
+    particle.SetVx(vx - ptr[cell_number_x][cell_number_y].GetViscosity() * (vx - ptr[cell_number_x][cell_number_y].GetSpeedX()));
+    particle.SetVy(vy - ptr[cell_number_x][cell_number_y].GetViscosity() * (vy - ptr[cell_number_x][cell_number_y].GetSpeedY()));
+	*/
 }
