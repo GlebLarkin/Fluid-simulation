@@ -20,7 +20,6 @@ void Function(unsigned int number_of_particles, unsigned int& start_mas, unsigne
 		for (unsigned int i = start_mas; i < end_mas; i++) {
 			Repulsion(ptr_for_particles_array[i], map, d);
 			ptr_for_particles_array[i].Rebound(d);
-			ptr_for_particles_array[i].Move();
 			ptr_for_particles_array[i].EarthGravity(d);
 
 			ptr_for_particles_array[i].Recolour();

@@ -43,6 +43,8 @@ public:
 
 	double FindParticlesViscosityCoefY(Particle& A, PressureMapCell& cell, Data& d);
 
+	void FindParticlesViscosityCoef(Particle& A, PressureMapCell& cell, Data& d);
+
 	void Calculate_pressure_map(Particle* ptr_for_particles_array, const unsigned int & number_of_particels, Data & d);
 
 
