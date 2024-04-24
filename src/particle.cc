@@ -44,20 +44,13 @@ void Particle::Rebound(Data & d) {
 	}
 }
 
-void Particle::Recolour() {
-	//the color of the particle depends on its velocity
-	int red;
-	int green;
-	int blue;
-	if ((int)this->FindSpeed() * 12 > 127) { //we won't change color if the velocity is too high
-		red = 100;
-		green = 255;
-		blue = 127;
-		return;
-	}
+void Particle::Recolour() {    
+	unsigned int red;
+    unsigned int green;    
+	unsigned int blue;
+    green = 255 - (unsigned int)((this->GetY() / 800.0) * 255); // calculate green value based on y coordinate    
 	red = 100;
-	green = 120 + (int)(this->FindSpeed() * 12);
-	blue = 240 - (int)(this->FindSpeed() * 12);
-	sf::Color circleColor(red, green, blue);
-	this->circle_.setFillColor(circleColor);
+    blue = 100 + 0.5 * (unsigned int)((this->GetY() / 800.0) * 255);
+    sf::Color circleColor(red, green, blue);
+    this->circle_.setFillColor(circleColor);
 }

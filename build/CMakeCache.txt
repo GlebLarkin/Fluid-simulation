@@ -222,15 +222,6 @@ FluidSimulation_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 FluidSimulation_SOURCE_DIR:STATIC=/Users/oleg/documents/GitHub/Fluid-simulation
 
-//Value Computed by CMake
-GunsFolder_BINARY_DIR:STATIC=/Users/oleg/documents/GitHub/Fluid-simulation/build
-
-//Value Computed by CMake
-GunsFolder_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-GunsFolder_SOURCE_DIR:STATIC=/Users/oleg/documents/GitHub/Fluid-simulation
-
 //Dependencies for the target
 Lib_LIB_DEPENDS:STATIC=general;sfml-graphics;general;sfml-window;general;sfml-system;
 

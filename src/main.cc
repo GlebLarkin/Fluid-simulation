@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
 
 	//--------------------------------- THREADS -------------------------------------
 
-	unsigned int MAXIMUM_THREADS = std::thread::hardware_concurrency();
+	unsigned int MAXIMUM_THREADS = std::thread::hardware_concurrency() - 1;
 	unsigned int NUM_THREADS;
 	unsigned int ONE_THREAD_CAPACITY = 150;
 
