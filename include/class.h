@@ -16,4 +16,5 @@ struct Data{
     const float r, a, alpha;
 };
 
+
 #endif  // FLUID_CLASS_HPP_

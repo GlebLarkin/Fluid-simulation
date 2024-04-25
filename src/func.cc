@@ -13,12 +13,12 @@ unsigned int GetScreenHeight()
 	return desktop.height;
 }
 
-void LeftMouseClick(Particle& A, const sf::RenderWindow* window_ptr, Data& d) {
+void LeftMouseClick(Particle& A, const MouseState& mouse_state, Data& d) {
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
 	//we choose the second one, because we want to interact more with close particles
-	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
-	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
+
+	sf::Vector2f direction = sf::Vector2f(mouse_state.position) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 	if (length > 300) return;
 
@@ -34,10 +34,9 @@ void LeftMouseClick(Particle& A, const sf::RenderWindow* window_ptr, Data& d) {
 	A.SetVy(A.GetVy() + direction.y);
 }
 
-void RightMouseClick(Particle& A, const sf::RenderWindow* window_ptr) {
+void RightMouseClick(Particle& A, const MouseState& mouse_state) {
 	//we relize repulsion from the cursor when the mouse is clicked(rmb)
-	sf::Vector2i mousePosition = sf::Mouse::getPosition(*window_ptr);
-	sf::Vector2f direction = sf::Vector2f(mousePosition) - A.GetCircle().getPosition();
+	sf::Vector2f direction = sf::Vector2f(mouse_state.position) - A.GetCircle().getPosition();
 	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 	if (length > 400) return;
 	direction = (sf::Vector2f)(direction * 100.0f / (length * length));

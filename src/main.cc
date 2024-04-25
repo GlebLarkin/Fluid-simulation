@@ -12,8 +12,7 @@
 
 
 void Function(unsigned int number_of_particles, unsigned int& start_mas, unsigned int& end_mas, Data& d, PressureMap& map,
-			  Particle* ptr_for_particles_array, const sf::RenderWindow* window_pointer,
-			  sf::RenderWindow& window, std::mutex& mut, Barrier<NullCallback>& bar){
+			  Particle* ptr_for_particles_array, MouseState& mouse_state, std::mutex& mut, Barrier<NullCallback>& bar){
 	while(true)
     {
 		bar.ArriveAndWait();
@@ -26,17 +25,35 @@ void Function(unsigned int number_of_particles, unsigned int& start_mas, unsigne
 			ptr_for_particles_array[i].Recolour();
 			ptr_for_particles_array[i].Move();
 
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) LeftMouseClick(ptr_for_particles_array[i], window_pointer, d); //attraction to the cursor when pressing the lmb
-			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) RightMouseClick(ptr_for_particles_array[i], window_pointer); //repulsion from the cursor when pressing the rmb
+			if (mouse_state.left_btn_down) LeftMouseClick(ptr_for_particles_array[i], mouse_state, d); //attraction to the cursor when pressing the lmb
+			else if (mouse_state.right_btn_down) RightMouseClick(ptr_for_particles_array[i], mouse_state); //repulsion from the cursor when pressing the rmb
 
-			do{
-				std::scoped_lock sl(mut);
-				window.draw((ptr_for_particles_array[i]).GetCircle());
-			} while(false);
 		}
 		bar.ArriveAndWait();
 	}
 };
+
+enum struct OSType {
+	LINUX, MAC, WIN
+};
+
+OSType GetOSType() {
+	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+   		return OSType::WIN;
+	#elif __APPLE__
+		return OSType::MAC;
+	#elif __linux__ 
+    	return OSType::LINUX;
+	#elif defined(_POSIX_VERSION)
+    	return OSType::LINUX;
+	#else
+	#   error "Unknown OS type"
+	#endif
+}
+
+#if defined(__linux__) || defined(_POSIX_VERSION)
+	#include <X11/Xlib.h>  
+#endif
 
 
 int main(int argc, char** argv) {
@@ -51,16 +68,24 @@ int main(int argc, char** argv) {
     Data d{config};
 
 	sf::RenderWindow window;
-	bool os_type = 1;
+
+	OSType os_type_e = GetOSType();
+	bool os_type;
+
+	switch(os_type_e) {
+		case OSType::LINUX: os_type = true; break;
+		case OSType::MAC: os_type = false; break;
+		default: throw std::runtime_error("Unsupported OS"); break;
+	}
 	
 	unsigned int number_of_particles = 1500; //defines the number of particles
 	
-	if (!os_type)
+	if (os_type)
 	{
-		d.boundX = GetScreenWidth();
-		d.boundY = GetScreenHeight();
-		sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
-		window.create(desktop, "Fluid simulation", sf::Style::Fullscreen); //fullscreen for windows and linux
+		//XInitThreads(); // Special func for linux multti-threading
+		d.boundX = 1200;
+		d.boundY = 800;
+		window.create(sf::VideoMode(d.boundX, d.boundY), "Fluid simulation"); //fullscreen for windows and linux
 	}
 	else 
 	{
@@ -123,6 +148,8 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	MouseState mouse_state;
+
 	std::mutex mut;
 
     Barrier bar(NUM_THREADS + 1, NullCallback{});
@@ -131,7 +158,18 @@ int main(int argc, char** argv) {
     threads.reserve(NUM_THREADS);
 
 	for (size_t i = 0; i < NUM_THREADS; ++i) {
-        threads.push_back(std::thread(Function, std::ref(number_of_particles), std::ref(start_mas[i]), std::ref(end_mas[i]), std::ref(d), std::ref(map), std::ref(ptr_for_particles_array), std::ref(window_pointer), std::ref(window), std::ref(mut), std::ref(bar)));
+        threads.push_back(
+			std::thread(
+				Function, 
+				std::ref(number_of_particles), 
+				std::ref(start_mas[i]), 
+				std::ref(end_mas[i]), 
+				std::ref(d), 
+				std::ref(map), 
+				std::ref(ptr_for_particles_array), 
+				std::ref(mouse_state),  
+				std::ref(mut), 
+				std::ref(bar)));
     }
 
     	
@@ -142,6 +180,18 @@ int main(int argc, char** argv) {
 		{
 			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape || event.type == sf::Event::Closed)
 				window.close();
+		}
+
+
+		mouse_state.position = sf::Mouse::getPosition();
+		mouse_state.left_btn_down = false;
+		mouse_state.right_btn_down = false;
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) { mouse_state.left_btn_down = true; } //attraction to the cursor when pressing the lmb
+		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) { mouse_state.right_btn_down = true; } //repulsion from the cursor when pressing the rmb
+
+
+		for (size_t i = 0; i < number_of_particles; ++i) {
+			window.draw((ptr_for_particles_array[i]).GetCircle());
 		}
 
 		map.Calculate_pressure_map(ptr_for_particles_array, number_of_particles, d); // Fucking shit doesnt work :/
@@ -182,11 +232,12 @@ int main(int argc, char** argv) {
 
 	bar.ArriveAndWait();
 
+	for (auto& thr : threads) thr.join();
+
 	delete [] start_mas;
 	delete [] end_mas;
 
-	std::free(ptr_for_particles_array);
+	std::free(ptr_for_particles_array); //clears memory for particle array
 
-	delete[] ptr_for_particles_array; //clears memory for particle array
 	return 0;
 }

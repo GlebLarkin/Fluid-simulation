@@ -5,6 +5,13 @@
 #include <particle.h>
 
 
+struct MouseState {
+	sf::Vector2i position;
+	bool left_btn_down;
+	bool right_btn_down;
+};
+
+
 unsigned int GetScreenWidth(); //returns screen size
 
 unsigned int GetScreenHeight();
@@ -12,16 +19,13 @@ unsigned int GetScreenHeight();
 void Sleep(int sec);//delay for sec seconds
 
 
-
-void LeftMouseClick(Particle& A, const sf::RenderWindow* window_ptr, Data& d);
+void LeftMouseClick(Particle& A, const MouseState&, Data& d);
 	//we realize the attraction to the cursor when you click the mouse(lmb)
 	//there are two options: depending on the length and on the length squared
 	//we choose the second one, because we want to interact more with close particles
 
 
-void RightMouseClick(Particle& A, const sf::RenderWindow* window_ptr); //we relize repulsion from the cursor when the mouse is clicked(rmb)
-
-
+void RightMouseClick(Particle& A, const MouseState&); //we relize repulsion from the cursor when the mouse is clicked(rmb)
 
 
 double GenerateRandomNumber(); //generate random number from zero to one
