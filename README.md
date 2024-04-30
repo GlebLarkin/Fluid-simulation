@@ -1,6 +1,9 @@
 # Fluid-simulation
 ![Тут должна быть гифка красивая](Short.gif)
 
+[Трейлер](https://youtu.be/HlB1t6TFtqU?si=PZJreQf-DYqVYeH2)
+[Описание проекта](https://www.youtube.com/watch?v=X9fE-gI-9j8)
+
 
 ## Как запустить?
 ### На Linux
